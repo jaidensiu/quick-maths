@@ -50,7 +50,7 @@ fun HandwritingCanvas(
             family = StockBrushes.marker(),
             colorIntArgb = strokeColor.toArgb(),
             size = strokeWidthPx,
-            epsilon = BRUSH_EPSILON,
+            epsilon = 0.1f,
         )
     }
     val session = remember { InkStrokeSession() }
@@ -68,9 +68,6 @@ fun HandwritingCanvas(
             )
             strokes.forEach { drawPath(path = it.path, color = strokeColor, style = style) }
         }
-        // Recreating the view is the only reliable way to drop wet ink immediately: finished
-        // strokes stay on Ink's front-buffered layer until an internal handoff whose timing we
-        // don't control, so a stale stroke could otherwise outlive the cleared dry canvas.
         key(clearKey) {
             AndroidView(
                 factory = session::createView,
@@ -86,10 +83,6 @@ fun HandwritingCanvas(
     }
 }
 
-/**
- * Feeds touch input to an [InProgressStrokesView] for low-latency wet-ink rendering while
- * capturing the raw points that recognition and dry-stroke rendering run on.
- */
 @SuppressLint("ClickableViewAccessibility")
 private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinishedListener {
     lateinit var brush: Brush
@@ -120,7 +113,6 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         val view = view ?: return false
         if (v !== view) {
-            // Leftover events from a replaced view's gesture; its strokes died with the view.
             return false
         }
         predictor?.record(event)
@@ -193,8 +185,6 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
     }
 
     override fun onStrokesFinished(strokes: Map<InProgressStrokeId, InkStroke>) {
-        // The dry copy was committed to Compose state on ACTION_UP, at least a frame before
-        // handoff lands here, so removing the wet copy cannot leave a gap.
         view?.removeFinishedStrokes(strokes.keys)
     }
 }
@@ -214,7 +204,6 @@ private fun List<HandwritingPoint>.toSmoothedPath(): Path {
         )
         last = point
     }
+    path.lineTo(x = last.x, y = last.y)
     return path
 }
-
-private const val BRUSH_EPSILON = 0.1f
