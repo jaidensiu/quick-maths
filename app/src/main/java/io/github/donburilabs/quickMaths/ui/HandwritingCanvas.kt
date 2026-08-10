@@ -129,6 +129,7 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
                 lastMoveUptimeMillis = event.eventTime
                 onStrokeStarted()
             }
+
             MotionEvent.ACTION_MOVE -> {
                 val id = strokeId ?: return false
                 val index = event.findPointerIndex(pointerId)
@@ -162,6 +163,7 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
                     lastMoveUptimeMillis = event.eventTime
                 }
             }
+
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 val id = strokeId ?: return false
                 if (event.getPointerId(event.actionIndex) != pointerId) {
@@ -173,12 +175,14 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
                     HandwritingStroke(path = points.toSmoothedPath(), points = points.toList())
                 )
             }
+
             MotionEvent.ACTION_CANCEL -> {
                 val id = strokeId ?: return false
                 view.cancelStroke(strokeId = id, event = event)
                 strokeId = null
                 points.clear()
             }
+
             else -> return false
         }
         return true
