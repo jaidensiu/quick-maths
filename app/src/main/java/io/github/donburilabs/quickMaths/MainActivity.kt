@@ -1,5 +1,7 @@
 package io.github.donburilabs.quickMaths
 
+import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +18,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Car displays are fixed-orientation (often landscape); locking to portrait there
+        // letterboxes the app. Keep the portrait lock for handheld devices only.
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         enableEdgeToEdge()
         setContent {
             val theme by viewModel.theme.collectAsStateWithLifecycle()

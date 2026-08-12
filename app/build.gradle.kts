@@ -33,6 +33,21 @@ android {
             }
         }
     }
+    flavorDimensions += "device"
+    productFlavors {
+        create("phone") {
+            dimension = "device"
+        }
+        create("automotive") {
+            dimension = "device"
+            // Car.createCar(Context, Handler, long, CarServiceLifecycleListener)
+            // requires API 29; every Play-supported AAOS car ships 29+.
+            minSdk = 29
+            // Play requires unique versionCodes across the phone and Automotive OS
+            // artifacts of the same app; keep this offset ahead of the phone code.
+            versionCode = 1_000_000 + (defaultConfig.versionCode ?: 1)
+        }
+    }
     signingConfigs {
         if (keystoreProperties.isNotEmpty()) {
             create("release") {
@@ -61,6 +76,8 @@ android {
         compose = true
         prefab = true
     }
+    // Compile-time stubs for android.car; only the automotive source set uses them.
+    useLibrary("android.car")
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")

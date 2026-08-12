@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.donburilabs.quickMaths.data.BestTimeRepository
+import io.github.donburilabs.quickMaths.data.GearMonitor
 import io.github.donburilabs.quickMaths.data.NumberRecognizer
 import io.github.donburilabs.quickMaths.data.SoundManager
 import io.github.donburilabs.quickMaths.domain.MathQuestion
@@ -23,6 +24,7 @@ class GameViewModel @Inject constructor(
     private val recognizer: NumberRecognizer,
     private val bestTimeRepository: BestTimeRepository,
     private val soundManager: SoundManager,
+    gearMonitor: GearMonitor,
 ) : ViewModel() {
     private val _state = MutableStateFlow(value = GameState(question = MathQuestion.random()))
     val state: StateFlow<GameState> = _state.asStateFlow()
@@ -36,9 +38,16 @@ class GameViewModel @Inject constructor(
     private var pencilIdleJob: Job? = null
 
     init {
-        // No-op after StartScreen has prepared the model; covers process-death restore.
         viewModelScope.launch {
             runCatching { recognizer.prepare() }
+        }
+
+        viewModelScope.launch {
+            gearMonitor.isParked.collect { parked ->
+                if (!parked) {
+                    onPause()
+                }
+            }
         }
     }
 

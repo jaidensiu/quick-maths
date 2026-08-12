@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Marks this artifact as Android Automotive OS-only so Play distributes it
+         to cars and never to phones. The phone flavor omits this feature. -->
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="true" />
+
+    <!-- Normal-level permission; needed to read GEAR_SELECTION for the park gate. -->
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+
+    <application>
+        <activity android:name=".MainActivity">
+            <!-- Not distraction optimized: the OS blocks the game while the car
+                 is moving, which is required for parked-only apps. -->
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="false" />
+        </activity>
+    </application>
+
+</manifest>
