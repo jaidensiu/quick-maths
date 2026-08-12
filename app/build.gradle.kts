@@ -17,9 +17,11 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "io.github.donburilabs.quickMaths"
+
     compileSdk {
         version = release(version = 37)
     }
+
     defaultConfig {
         applicationId = "io.github.donburilabs.quickMaths"
         minSdk = 26
@@ -33,10 +35,12 @@ android {
             }
         }
     }
+
     flavorDimensions += "device"
     productFlavors {
-        create("phone") {
+        create("mobile") {
             dimension = "device"
+            isDefault = true
         }
         create("automotive") {
             dimension = "device"
@@ -48,6 +52,7 @@ android {
             versionCode = 1_000_000 + (defaultConfig.versionCode ?: 1)
         }
     }
+
     signingConfigs {
         if (keystoreProperties.isNotEmpty()) {
             create("release") {
@@ -58,6 +63,7 @@ android {
             }
         }
     }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -68,15 +74,17 @@ android {
             signingConfig = signingConfigs.findByName("release")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
         prefab = true
     }
-    // Compile-time stubs for android.car; only the automotive source set uses them.
+
     useLibrary("android.car")
     externalNativeBuild {
         cmake {
@@ -90,6 +98,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.adaptive)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

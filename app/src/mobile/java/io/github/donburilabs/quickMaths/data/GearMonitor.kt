@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Phones have no gear selector; gameplay is always allowed. */
+/** Mobile devices have no gear selector; gameplay is always allowed. */
 @Singleton
 class GearMonitor @Inject constructor() {
     val isParked: StateFlow<Boolean> = MutableStateFlow(value = true).asStateFlow()
