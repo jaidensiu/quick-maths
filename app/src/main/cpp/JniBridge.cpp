@@ -6,7 +6,7 @@
 
 #define QM_JNI_FN(ret, name)      \
     extern "C" JNIEXPORT ret JNICALL \
-    Java_io_github_donburilabs_quickMaths_data_NativeSfxEngine_##name
+    Java_com_jaidensiu_quickmaths_data_NativeSfxEngine_##name
 
 namespace {
     quickmaths::AudioEngine &engine() {
