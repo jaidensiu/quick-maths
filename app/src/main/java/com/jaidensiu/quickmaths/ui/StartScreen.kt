@@ -2,11 +2,13 @@
 
 package com.jaidensiu.quickmaths.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -26,9 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaidensiu.quickmaths.R
 
 @Composable
 fun StartScreen(
@@ -80,6 +85,14 @@ fun StartScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
+                Image(
+                    painter = painterResource(id = R.drawable.sad_man_playing_qm),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
+                    modifier = Modifier
+                        .width(width = 200.dp)
+                        .padding(bottom = 16.dp),
+                )
                 Text(
                     text = "Quick Maths",
                     style = MaterialTheme.typography.displayMedium,
