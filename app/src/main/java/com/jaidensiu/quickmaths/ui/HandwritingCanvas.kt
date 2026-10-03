@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -53,6 +54,20 @@ fun HandwritingCanvas(
     strokeColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
+    // Ink brushes and views are backed by native code that the preview renderer cannot load.
+    if (LocalInspectionMode.current) {
+        Canvas(
+            modifier = modifier
+                .fillMaxSize()
+                .clipToBounds(),
+        ) {
+            val style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            for (stroke in strokes) {
+                drawPath(path = stroke.path, color = strokeColor, style = style)
+            }
+        }
+        return
+    }
     val brush = remember(strokeColor, strokeWidthPx) {
         Brush.createWithColorIntArgb(
             family = StockBrushes.marker(),
@@ -268,7 +283,7 @@ private class InkStrokeSession : View.OnTouchListener {
     }
 }
 
-private fun List<HandwritingPoint>.toSmoothedPath(): Path {
+internal fun List<HandwritingPoint>.toSmoothedPath(): Path {
     val path = Path()
     val first = firstOrNull() ?: return path
     path.moveTo(x = first.x, y = first.y)

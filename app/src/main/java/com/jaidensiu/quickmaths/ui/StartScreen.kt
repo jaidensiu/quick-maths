@@ -45,6 +45,29 @@ fun StartScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val strokes = remember { mutableStateListOf<HandwritingStroke>() }
 
+    StartContent(
+        state = state,
+        strokes = strokes,
+        onStrokeFinished = { strokes.add(it) },
+        onClear = strokes::clear,
+        onStartGame = onStartGame,
+        onOpenSettings = onOpenSettings,
+        onRetry = viewModel::onRetry,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun StartContent(
+    state: StartState,
+    strokes: List<HandwritingStroke>,
+    onStrokeFinished: (HandwritingStroke) -> Unit,
+    onClear: () -> Unit,
+    onStartGame: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -60,7 +83,7 @@ fun StartScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = strokes::clear) {
+                    TextButton(onClick = onClear) {
                         Text(
                             text = "Clear",
                             style = MaterialTheme.typography.titleLarge,
@@ -77,7 +100,7 @@ fun StartScreen(
         ) {
             HandwritingCanvas(
                 strokes = strokes,
-                onStrokeFinished = { strokes.add(it) },
+                onStrokeFinished = onStrokeFinished,
                 modifier = Modifier.fillMaxSize(),
             )
             Column(
@@ -138,7 +161,7 @@ fun StartScreen(
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 16.dp),
                         )
-                        TextButton(onClick = viewModel::onRetry) {
+                        TextButton(onClick = onRetry) {
                             Text(text = "Retry")
                         }
                     }

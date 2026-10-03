@@ -29,6 +29,25 @@ fun ResultsScreen(
     val storedBestTimeMs by viewModel.bestTimeMs.collectAsStateWithLifecycle()
     val bestTimeMs = (storedBestTimeMs ?: elapsedTimeMs).coerceAtMost(maximumValue = elapsedTimeMs)
 
+    ResultsContent(
+        elapsedTimeMs = elapsedTimeMs,
+        bestTimeMs = bestTimeMs,
+        totalQuestions = totalQuestions,
+        onPlayAgain = onPlayAgain,
+        onBackToHome = onBackToHome,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun ResultsContent(
+    elapsedTimeMs: Long,
+    bestTimeMs: Long,
+    totalQuestions: Int,
+    onPlayAgain: () -> Unit,
+    onBackToHome: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier

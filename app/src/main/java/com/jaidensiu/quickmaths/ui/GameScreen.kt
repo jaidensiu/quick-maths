@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -52,6 +53,46 @@ fun GameScreen(
         }
     }
 
+    GameContent(
+        state = state,
+        onPause = viewModel::onPause,
+        onResume = viewModel::onResume,
+        onExitGame = onExitGame,
+        onClear = viewModel::onClear,
+        onStrokeStarted = viewModel::onStrokeStarted,
+        onStrokeMoved = viewModel::onStrokeMoved,
+        onStrokeFinished = viewModel::onStrokeFinished,
+        onStrokeCancelled = viewModel::onStrokeCancelled,
+        onCanvasSizeChanged = viewModel::onCanvasSizeChanged,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun GameContent(
+    state: GameState,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onExitGame: () -> Unit,
+    onClear: () -> Unit,
+    onStrokeStarted: () -> Unit,
+    onStrokeMoved: (speedPxPerMs: Float) -> Unit,
+    onStrokeFinished: (HandwritingStroke) -> Unit,
+    onStrokeCancelled: () -> Unit,
+    onCanvasSizeChanged: (IntSize) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val canvas: @Composable (Modifier) -> Unit = { canvasModifier ->
+        HandwritingCanvas(
+            strokes = state.strokes,
+            onStrokeFinished = onStrokeFinished,
+            onStrokeStarted = onStrokeStarted,
+            onStrokeMoved = onStrokeMoved,
+            onStrokeCancelled = onStrokeCancelled,
+            modifier = canvasModifier.onSizeChanged(onCanvasSizeChanged),
+        )
+    }
+
     Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
         when {
             state.isFinished -> Unit
@@ -76,7 +117,7 @@ fun GameScreen(
                         )
                     }
                     Button(
-                        onClick = viewModel::onResume,
+                        onClick = onResume,
                         enabled = state.canResume,
                         modifier = Modifier.padding(top = 16.dp),
                     ) {
@@ -105,7 +146,7 @@ fun GameScreen(
                             modifier = Modifier.align(alignment = Alignment.Center),
                         )
                         TextButton(
-                            onClick = viewModel::onPause,
+                            onClick = onPause,
                             modifier = Modifier
                                 .align(alignment = Alignment.CenterEnd)
                                 .padding(end = 8.dp),
@@ -138,7 +179,7 @@ fun GameScreen(
                                     )
                                 }
                                 TextButton(
-                                    onClick = viewModel::onClear,
+                                    onClick = onClear,
                                     modifier = Modifier.padding(top = 8.dp),
                                 ) {
                                     Text(
@@ -147,11 +188,7 @@ fun GameScreen(
                                     )
                                 }
                             }
-                            GameHandwritingCanvas(
-                                state = state,
-                                viewModel = viewModel,
-                                modifier = Modifier.weight(weight = 3f),
-                            )
+                            canvas(Modifier.weight(weight = 3f))
                         }
                     } else {
                         Text(
@@ -174,7 +211,7 @@ fun GameScreen(
                             )
                             Spacer(modifier = Modifier.weight(weight = 1f))
                             TextButton(
-                                onClick = viewModel::onClear,
+                                onClick = onClear,
                                 modifier = Modifier.padding(end = 8.dp),
                             ) {
                                 Text(
@@ -183,30 +220,10 @@ fun GameScreen(
                                 )
                             }
                         }
-                        GameHandwritingCanvas(
-                            state = state,
-                            viewModel = viewModel,
-                            modifier = Modifier.weight(weight = 1f),
-                        )
+                        canvas(Modifier.weight(weight = 1f))
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun GameHandwritingCanvas(
-    state: GameState,
-    viewModel: GameViewModel,
-    modifier: Modifier = Modifier,
-) {
-    HandwritingCanvas(
-        strokes = state.strokes,
-        onStrokeFinished = viewModel::onStrokeFinished,
-        onStrokeStarted = viewModel::onStrokeStarted,
-        onStrokeMoved = viewModel::onStrokeMoved,
-        onStrokeCancelled = viewModel::onStrokeCancelled,
-        modifier = modifier.onSizeChanged { viewModel.onCanvasSizeChanged(size = it) },
-    )
 }
