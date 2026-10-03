@@ -40,6 +40,7 @@ fun HandwritingCanvas(
     modifier: Modifier = Modifier,
     onStrokeStarted: () -> Unit = {},
     onStrokeMoved: (speedPxPerMs: Float) -> Unit = {},
+    onStrokeCancelled: () -> Unit = {},
     clearKey: Int = 0,
     strokeWidth: Dp = 4.dp,
     strokeColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -76,6 +77,7 @@ fun HandwritingCanvas(
                     session.onStrokeStarted = onStrokeStarted
                     session.onStrokeMoved = onStrokeMoved
                     session.onStrokeFinished = onStrokeFinished
+                    session.onStrokeCancelled = onStrokeCancelled
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -89,6 +91,7 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
     var onStrokeStarted: () -> Unit = {}
     var onStrokeMoved: (speedPxPerMs: Float) -> Unit = {}
     var onStrokeFinished: (HandwritingStroke) -> Unit = {}
+    var onStrokeCancelled: () -> Unit = {}
 
     private var view: InProgressStrokesView? = null
     private var predictor: MotionEventPredictor? = null
@@ -181,6 +184,7 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
                 view.cancelStroke(strokeId = id, event = event)
                 strokeId = null
                 points.clear()
+                onStrokeCancelled()
             }
 
             else -> return false

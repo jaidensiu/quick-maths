@@ -1,11 +1,14 @@
 package com.jaidensiu.quickmaths.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.jaidensiu.quickmaths.data.BestTimeRepository
+import com.jaidensiu.quickmaths.data.GearMonitor
 import com.jaidensiu.quickmaths.data.NetworkMonitor
 import com.jaidensiu.quickmaths.data.NumberRecognizer
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +21,7 @@ class StartViewModel @Inject constructor(
     private val recognizer: NumberRecognizer,
     private val bestTimeRepository: BestTimeRepository,
     private val networkMonitor: NetworkMonitor,
+    gearMonitor: GearMonitor,
 ) : ViewModel() {
     private val _state = MutableStateFlow(value = StartState())
     val state: StateFlow<StartState> = _state.asStateFlow()
@@ -27,6 +31,13 @@ class StartViewModel @Inject constructor(
         viewModelScope.launch {
             bestTimeRepository.bestTimeMs.collect { bestTimeMs ->
                 _state.update { it.copy(bestTimeMs = bestTimeMs) }
+            }
+        }
+        // Injecting the monitor here also makes the car service connect while the user is still
+        // on the start screen, so the gear is known before the first game begins.
+        viewModelScope.launch {
+            gearMonitor.isParked.collect { parked ->
+                _state.update { it.copy(isParked = parked) }
             }
         }
         viewModelScope.launch {
@@ -56,16 +67,21 @@ class StartViewModel @Inject constructor(
                 return@launch
             }
             _state.update { it.copy(modelStatus = ModelStatus.LOADING) }
-            runCatching { recognizer.prepare() }
-                .onSuccess { _state.update { it.copy(modelStatus = ModelStatus.READY) } }
-                .onFailure {
-                    val status = if (networkMonitor.isCurrentlyOnline()) {
-                        ModelStatus.ERROR
-                    } else {
-                        ModelStatus.OFFLINE
-                    }
-                    _state.update { it.copy(modelStatus = status) }
-                }
+            val status = try {
+                recognizer.prepare()
+                ModelStatus.READY
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                val online = networkMonitor.isCurrentlyOnline()
+                Log.w(TAG, "Handwriting model preparation failed (online=$online)", error)
+                if (online) ModelStatus.ERROR else ModelStatus.OFFLINE
+            }
+            _state.update { it.copy(modelStatus = status) }
         }
+    }
+
+    private companion object {
+        const val TAG = "StartViewModel"
     }
 }

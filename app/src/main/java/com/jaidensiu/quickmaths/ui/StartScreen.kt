@@ -94,15 +94,19 @@ fun StartScreen(
                 }
                 Button(
                     onClick = onStartGame,
-                    enabled = state.modelStatus == ModelStatus.READY,
+                    enabled = state.canStart,
                     modifier = Modifier.padding(top = 16.dp),
                 ) {
                     Text(
-                        text = when (state.modelStatus) {
-                            ModelStatus.LOADING -> "Loading model..."
-                            ModelStatus.OFFLINE -> "No connection"
-                            ModelStatus.READY -> "Start game"
-                            ModelStatus.ERROR -> "Model loading error"
+                        text = when {
+                            state.isParked == false -> "Park to play"
+                            state.isParked == null -> "Checking vehicle..."
+                            else -> when (state.modelStatus) {
+                                ModelStatus.LOADING -> "Loading model..."
+                                ModelStatus.OFFLINE -> "No connection"
+                                ModelStatus.READY -> "Start game"
+                                ModelStatus.ERROR -> "Model loading error"
+                            }
                         }
                     )
                 }

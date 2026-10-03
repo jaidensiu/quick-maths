@@ -18,8 +18,13 @@ import javax.inject.Singleton
 class GearMonitor @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
-    private val _isParked = MutableStateFlow(value = false)
-    val isParked: StateFlow<Boolean> = _isParked.asStateFlow()
+    /**
+     * `null` until the car service reports the gear for the first time, `true` while in Park,
+     * `false` otherwise or on any failure. Consumers treat `null` as "not parked" so gameplay
+     * fails closed.
+     */
+    private val _isParked = MutableStateFlow<Boolean?>(value = null)
+    val isParked: StateFlow<Boolean?> = _isParked.asStateFlow()
 
     private val callback = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<*>) {
@@ -33,23 +38,30 @@ class GearMonitor @Inject constructor(
     }
 
     init {
-        Car.createCar(context, null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT) { car, ready ->
-            if (ready) {
-                runCatching {
-                    val manager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
-                    manager.registerCallback(
-                        callback,
-                        VehiclePropertyIds.GEAR_SELECTION,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE,
-                    )
-                }.onFailure { error ->
-                    Log.w(TAG, "Unable to observe gear selection; blocking gameplay", error)
+        val car = runCatching {
+            Car.createCar(context, null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT) { car, ready ->
+                if (ready) {
+                    runCatching {
+                        val manager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
+                        manager.registerCallback(
+                            callback,
+                            VehiclePropertyIds.GEAR_SELECTION,
+                            CarPropertyManager.SENSOR_RATE_ONCHANGE,
+                        )
+                    }.onFailure { error ->
+                        Log.w(TAG, "Unable to observe gear selection; blocking gameplay", error)
+                        _isParked.value = false
+                    }
+                } else {
+                    Log.w(TAG, "Car service disconnected; blocking gameplay")
                     _isParked.value = false
                 }
-            } else {
-                Log.w(TAG, "Car service disconnected; blocking gameplay")
-                _isParked.value = false
             }
+        }.onFailure { error ->
+            Log.w(TAG, "Car service unavailable; blocking gameplay", error)
+        }.getOrNull()
+        if (car == null) {
+            _isParked.value = false
         }
     }
 

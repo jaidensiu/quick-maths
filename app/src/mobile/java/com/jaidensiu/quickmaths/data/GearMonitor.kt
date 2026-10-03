@@ -9,5 +9,6 @@ import javax.inject.Singleton
 /** Mobile devices have no gear selector; gameplay is always allowed. */
 @Singleton
 class GearMonitor @Inject constructor() {
-    val isParked: StateFlow<Boolean> = MutableStateFlow(value = true).asStateFlow()
+    /** `true` always; `null` (unknown) and `false` only occur on the automotive flavor. */
+    val isParked: StateFlow<Boolean?> = MutableStateFlow<Boolean?>(value = true).asStateFlow()
 }

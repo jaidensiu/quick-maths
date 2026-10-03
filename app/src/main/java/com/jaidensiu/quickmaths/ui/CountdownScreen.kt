@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,13 +31,14 @@ fun CountdownScreen(
     modifier: Modifier = Modifier,
     viewModel: CountdownViewModel = hiltViewModel(),
 ) {
-    var count by remember { mutableIntStateOf(value = COUNTDOWN_START) }
+    // Saved so a configuration change resumes from the current number instead of restarting at 3.
+    var count by rememberSaveable { mutableIntStateOf(value = COUNTDOWN_START) }
     var progress by remember { mutableFloatStateOf(value = 0f) }
 
     BackHandler {}
 
     LaunchedEffect(key1 = Unit) {
-        for (value in COUNTDOWN_START downTo 1) {
+        for (value in count downTo 1) {
             count = value
             viewModel.onCountShown()
             animate(

@@ -19,8 +19,6 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,7 +37,6 @@ fun GameScreen(
     viewModel: GameViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val strokes = remember { mutableStateListOf<HandwritingStroke>() }
 
     // Swallow the back gesture; leaving the game is only possible via the pause menu.
     BackHandler(enabled = !state.isFinished) {}
@@ -47,10 +44,6 @@ fun GameScreen(
     // Auto-pause when the app goes to the background so away-time doesn't count.
     LifecycleEventEffect(event = Lifecycle.Event.ON_STOP) {
         viewModel.onPause()
-    }
-
-    LaunchedEffect(key1 = state.canvasClearKey) {
-        strokes.clear()
     }
 
     LaunchedEffect(key1 = state.isFinished) {
@@ -74,8 +67,17 @@ fun GameScreen(
                         text = "Paused",
                         style = MaterialTheme.typography.displayMedium,
                     )
+                    if (!state.canResume) {
+                        Text(
+                            text = "Park the vehicle to resume",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 16.dp),
+                        )
+                    }
                     Button(
                         onClick = viewModel::onResume,
+                        enabled = state.canResume,
                         modifier = Modifier.padding(top = 16.dp),
                     ) {
                         Text(text = "Resume")
@@ -136,10 +138,7 @@ fun GameScreen(
                                     )
                                 }
                                 TextButton(
-                                    onClick = {
-                                        strokes.clear()
-                                        viewModel.onClear()
-                                    },
+                                    onClick = viewModel::onClear,
                                     modifier = Modifier.padding(top = 8.dp),
                                 ) {
                                     Text(
@@ -149,9 +148,8 @@ fun GameScreen(
                                 }
                             }
                             GameHandwritingCanvas(
-                                strokes = strokes,
+                                state = state,
                                 viewModel = viewModel,
-                                clearKey = state.canvasClearKey,
                                 modifier = Modifier.weight(weight = 3f),
                             )
                         }
@@ -176,10 +174,7 @@ fun GameScreen(
                             )
                             Spacer(modifier = Modifier.weight(weight = 1f))
                             TextButton(
-                                onClick = {
-                                    strokes.clear()
-                                    viewModel.onClear()
-                                },
+                                onClick = viewModel::onClear,
                                 modifier = Modifier.padding(end = 8.dp),
                             ) {
                                 Text(
@@ -189,9 +184,8 @@ fun GameScreen(
                             }
                         }
                         GameHandwritingCanvas(
-                            strokes = strokes,
+                            state = state,
                             viewModel = viewModel,
-                            clearKey = state.canvasClearKey,
                             modifier = Modifier.weight(weight = 1f),
                         )
                     }
@@ -203,20 +197,17 @@ fun GameScreen(
 
 @Composable
 private fun GameHandwritingCanvas(
-    strokes: MutableList<HandwritingStroke>,
+    state: GameState,
     viewModel: GameViewModel,
-    clearKey: Int,
     modifier: Modifier = Modifier,
 ) {
     HandwritingCanvas(
-        strokes = strokes,
-        onStrokeFinished = {
-            strokes.add(it)
-            viewModel.onStrokeFinished(stroke = it)
-        },
+        strokes = state.strokes,
+        onStrokeFinished = viewModel::onStrokeFinished,
         onStrokeStarted = viewModel::onStrokeStarted,
         onStrokeMoved = viewModel::onStrokeMoved,
-        clearKey = clearKey,
+        onStrokeCancelled = viewModel::onStrokeCancelled,
+        clearKey = state.canvasClearKey,
         modifier = modifier.onSizeChanged { viewModel.onCanvasSizeChanged(size = it) },
     )
 }

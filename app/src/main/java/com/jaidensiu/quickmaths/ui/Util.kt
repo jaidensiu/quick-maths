@@ -3,21 +3,19 @@ package com.jaidensiu.quickmaths.ui
 import java.util.Locale
 
 object Util {
+    /**
+     * Formats a duration as `SS.cc s` under a minute and `M:SS.cc` above. Rounds to centiseconds
+     * as an integer first so the carry into minutes is exact (no `60.00s` or `1:60.00`).
+     */
     internal fun formatElapsedTime(elapsedTimeMs: Long): String {
-        val minutes = elapsedTimeMs / 60_000
-        val seconds = (elapsedTimeMs % 60_000) / 1000.0
+        val totalCentis = (elapsedTimeMs.coerceAtLeast(minimumValue = 0L) + 5L) / 10L
+        val minutes = totalCentis / 6_000L
+        val seconds = totalCentis % 6_000L / 100L
+        val centis = totalCentis % 100L
         return if (minutes > 0) {
-            String.format(
-                locale = Locale.US,
-                format = "%d:%05.2f",
-                args = arrayOf<Any>(minutes, seconds),
-            )
+            String.format(Locale.US, "%d:%02d.%02d", minutes, seconds, centis)
         } else {
-            String.format(
-                locale = Locale.US,
-                format = "%.2fs",
-                args = arrayOf(seconds),
-            )
+            String.format(Locale.US, "%d.%02ds", seconds, centis)
         }
     }
 }
