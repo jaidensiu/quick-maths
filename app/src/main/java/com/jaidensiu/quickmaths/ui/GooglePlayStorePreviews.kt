@@ -1,7 +1,34 @@
 package com.jaidensiu.quickmaths.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.jaidensiu.quickmaths.R
 import androidx.compose.ui.tooling.preview.Preview
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
 import com.jaidensiu.quickmaths.domain.MathQuestion
@@ -13,6 +40,7 @@ import kotlin.math.sin
 // Google Play Store screenshot sizes: 9:16 phone, 16:9 landscape for Android Automotive OS.
 private const val PHONE = "spec:width=1080px,height=1920px,dpi=420"
 private const val CAR = "spec:width=1920px,height=1080px,dpi=160"
+private const val FEATURE_GRAPHIC = "spec:width=1024px,height=500px,dpi=160"
 
 @Preview(name = "Phone light", device = PHONE, showBackground = true)
 @Preview(
@@ -32,19 +60,20 @@ annotation class PhonePreviews
 )
 annotation class CarPreviews
 
-private val sampleQuestion = MathQuestion(left = 6, right = 7, operation = Operation.MULTIPLICATION)
+private val sampleQuestion = MathQuestion(left = 8, right = 8, operation = Operation.MULTIPLICATION)
 
 private const val SAMPLE_TIME_MS = 19_840L
 
-/** A handwritten "42", drawn with its top-left corner at ([x], [y]) in canvas pixels. */
+/** A handwritten "64", drawn with its top-left corner at ([x], [y]) in canvas pixels. */
 private fun sampleAnswerStrokes(x: Float, y: Float): List<HandwritingStroke> = listOf(
-    listOf(100f to 0f, 0f to 300f, 230f to 300f),
-    listOf(170f to 60f, 170f to 440f),
-    // Arc over the top of the "2", then the diagonal and the base.
-    (200..380 step 15).map { degrees ->
-        val radians = Math.toRadians(degrees.toDouble())
-        370f + 100f * cos(radians).toFloat() to 110f + 100f * sin(radians).toFloat()
-    } + listOf(270f to 420f, 500f to 420f),
+    // Sweep down the left of the "6", then once around its loop.
+    listOf(170f to 0f, 110f to 50f, 55f to 130f, 20f to 230f) +
+        (180 downTo -180 step 10).map { degrees ->
+            val radians = Math.toRadians(degrees.toDouble())
+            110f + 100f * cos(radians).toFloat() to 330f + 100f * sin(radians).toFloat()
+        },
+    listOf(390f to 0f, 290f to 300f, 520f to 300f),
+    listOf(460f to 60f, 460f to 440f),
 ).map { corners ->
     val points = corners.zipWithNext().flatMap { (from, to) ->
         (0 until 8).map { step ->
@@ -83,7 +112,7 @@ private fun PreviewGame(strokes: List<HandwritingStroke>) {
     QuickMathsTheme {
         GameContent(
             state = GameState(
-                recognizedText = "42",
+                recognizedText = "64",
                 question = sampleQuestion,
                 questionNumber = 7,
                 strokes = strokes,
@@ -137,3 +166,91 @@ private fun CarGamePreview() = PreviewGame(strokes = sampleAnswerStrokes(x = 330
 @CarPreviews
 @Composable
 private fun CarResultsPreview() = PreviewResults()
+
+/** Google Play Store feature graphic: 1024x500, no transparency. */
+@Preview(name = "Feature graphic light", device = FEATURE_GRAPHIC, showBackground = true)
+@Preview(
+    name = "Feature graphic dark",
+    device = FEATURE_GRAPHIC,
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun FeatureGraphicPreview() {
+    QuickMathsTheme {
+        val ink = MaterialTheme.colorScheme.onBackground
+        val strokes = sampleAnswerStrokes(x = 0f, y = 0f)
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(horizontal = 56.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 40.dp,
+                alignment = Alignment.CenterHorizontally,
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.sad_man_playing_qm),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(color = ink),
+                modifier = Modifier.width(width = 300.dp),
+            )
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_play_store),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(size = 96.dp)
+                            .clip(shape = RoundedCornerShape(percent = 22))
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = RoundedCornerShape(percent = 22),
+                            ),
+                    )
+                    Text(
+                        text = "Quick Maths",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            fontSize = 64.sp,
+                            lineHeight = 72.sp,
+                        ),
+                        color = ink,
+                        modifier = Modifier.padding(start = 24.dp),
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    Text(
+                        text = sampleQuestion.text,
+                        style = MaterialTheme.typography.displayMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Canvas(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .size(width = 80.dp, height = 72.dp),
+                    ) {
+                        scale(scale = 0.16f, pivot = Offset.Zero) {
+                            for (stroke in strokes) {
+                                drawPath(
+                                    path = stroke.path,
+                                    color = ink,
+                                    style = Stroke(
+                                        width = 28f,
+                                        cap = StrokeCap.Round,
+                                        join = StrokeJoin.Round,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
