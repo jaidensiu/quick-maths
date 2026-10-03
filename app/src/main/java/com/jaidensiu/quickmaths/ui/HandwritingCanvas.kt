@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -25,14 +24,23 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.ink.authoring.InProgressStrokeId
-import androidx.ink.authoring.InProgressStrokesFinishedListener
 import androidx.ink.authoring.InProgressStrokesView
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
 import androidx.input.motionprediction.MotionEventPredictor
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
-import androidx.ink.strokes.Stroke as InkStroke
+import java.util.Collections
+import java.util.IdentityHashMap
 
+/**
+ * Low-latency handwriting surface.
+ *
+ * Every stroke is rendered by the ink library's front-buffered [InProgressStrokesView] (the wet
+ * layer) and stays there, still "in progress" from the library's point of view, until the owner
+ * drops it from [strokes]. There is no wet-to-dry handover per stroke, so nothing can flicker, and
+ * dropping a stroke clears it on the next front-buffer draw. The Compose layer only draws strokes
+ * the wet layer does not have, which happens when the canvas is recreated with existing strokes.
+ */
 @Composable
 fun HandwritingCanvas(
     strokes: List<HandwritingStroke>,
@@ -41,7 +49,6 @@ fun HandwritingCanvas(
     onStrokeStarted: () -> Unit = {},
     onStrokeMoved: (speedPxPerMs: Float) -> Unit = {},
     onStrokeCancelled: () -> Unit = {},
-    clearKey: Int = 0,
     strokeWidth: Dp = 4.dp,
     strokeColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
@@ -62,31 +69,38 @@ fun HandwritingCanvas(
             .clipToBounds(),
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
+            // This lambda re-runs whenever `strokes` changes, so it is where the wet layer learns
+            // which strokes the owner has dropped.
+            session.syncWithOwnerStrokes(strokes)
             val style = Stroke(
                 width = strokeWidthPx,
                 cap = StrokeCap.Round,
                 join = StrokeJoin.Round,
             )
-            strokes.forEach { drawPath(path = it.path, color = strokeColor, style = style) }
+            for (stroke in strokes) {
+                if (!session.isRenderedByWetLayer(stroke)) {
+                    drawPath(path = stroke.path, color = strokeColor, style = style)
+                }
+            }
         }
-        key(clearKey) {
-            AndroidView(
-                factory = session::createView,
-                update = {
-                    session.brush = brush
-                    session.onStrokeStarted = onStrokeStarted
-                    session.onStrokeMoved = onStrokeMoved
-                    session.onStrokeFinished = onStrokeFinished
-                    session.onStrokeCancelled = onStrokeCancelled
-                },
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        // One view for the whole composition. Recreating it is costly (surface + two hardware
+        // buffers), and strokes written before the new view is ready are not visible.
+        AndroidView(
+            factory = session::createView,
+            update = {
+                session.brush = brush
+                session.onStrokeStarted = onStrokeStarted
+                session.onStrokeMoved = onStrokeMoved
+                session.onStrokeFinished = onStrokeFinished
+                session.onStrokeCancelled = onStrokeCancelled
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
 @SuppressLint("ClickableViewAccessibility")
-private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinishedListener {
+private class InkStrokeSession : View.OnTouchListener {
     lateinit var brush: Brush
     var onStrokeStarted: () -> Unit = {}
     var onStrokeMoved: (speedPxPerMs: Float) -> Unit = {}
@@ -101,15 +115,65 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
     private var lastPosition = Offset.Zero
     private var lastMoveUptimeMillis = 0L
 
+    /**
+     * Lifted strokes the wet layer still renders, keyed by the object handed to the owner. They
+     * are never passed to the library's finish/handoff pipeline, which would park them in the
+     * front buffer for up to 500 ms after each handoff and then hand them to a slower renderer.
+     */
+    private val wetStrokes = IdentityHashMap<HandwritingStroke, InProgressStrokeId>()
+
+    /** Lifted strokes not yet seen in the owner's list; they get a few frames before being judged dropped. */
+    private val unconfirmedStrokes: MutableSet<HandwritingStroke> =
+        Collections.newSetFromMap(IdentityHashMap())
+
     fun createView(context: Context): InProgressStrokesView {
         strokeId = null
         points.clear()
+        wetStrokes.clear()
+        unconfirmedStrokes.clear()
         return InProgressStrokesView(context).also {
             it.eagerInit()
-            it.addFinishedStrokesListener(this)
             it.setOnTouchListener(this)
             predictor = MotionEventPredictor.newInstance(it)
             view = it
+        }
+    }
+
+    fun isRenderedByWetLayer(stroke: HandwritingStroke): Boolean = wetStrokes.containsKey(stroke)
+
+    /** Cancels wet strokes the owner has dropped from its list. */
+    fun syncWithOwnerStrokes(ownerStrokes: List<HandwritingStroke>) {
+        val view = view ?: return
+        if (wetStrokes.isEmpty()) {
+            return
+        }
+        unconfirmedStrokes.removeAll { stroke -> ownerStrokes.any { it === stroke } }
+        val iterator = wetStrokes.entries.iterator()
+        while (iterator.hasNext()) {
+            val (stroke, id) = iterator.next()
+            if (stroke in unconfirmedStrokes || ownerStrokes.any { it === stroke }) {
+                continue
+            }
+            view.cancelStroke(strokeId = id)
+            iterator.remove()
+        }
+    }
+
+    /**
+     * The owner normally adds a lifted stroke to its list within a frame, and the draw pass above
+     * confirms it. If the list is cleared again before Compose draws (answer recognized within the
+     * same frame), Compose sees an unchanged empty list, skips the draw, and the stroke would stay
+     * wet forever. Treat a stroke still unconfirmed after a few frames as dropped.
+     */
+    private fun scheduleUnconfirmedStrokeCheck(view: View, stroke: HandwritingStroke) {
+        view.postOnAnimation {
+            view.postOnAnimation {
+                view.postOnAnimation {
+                    if (unconfirmedStrokes.remove(stroke)) {
+                        wetStrokes.remove(stroke)?.let { this.view?.cancelStroke(strokeId = it) }
+                    }
+                }
+            }
         }
     }
 
@@ -169,14 +233,25 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 val id = strokeId ?: return false
-                if (event.getPointerId(event.actionIndex) != pointerId) {
+                val index = event.actionIndex
+                if (event.getPointerId(index) != pointerId) {
                     return true
                 }
-                view.finishStroke(event = event, pointerId = pointerId, strokeId = id)
-                strokeId = null
-                onStrokeFinished(
-                    HandwritingStroke(path = points.toSmoothedPath(), points = points.toList())
+                points.add(
+                    HandwritingPoint(
+                        x = event.getX(index),
+                        y = event.getY(index),
+                        timeMillis = event.eventTime,
+                    )
                 )
+                // Deliberately not finishStroke(): the wet layer keeps rendering this stroke until
+                // the owner drops it, see syncWithOwnerStrokes.
+                val stroke = HandwritingStroke(path = points.toSmoothedPath(), points = points.toList())
+                wetStrokes[stroke] = id
+                unconfirmedStrokes.add(stroke)
+                scheduleUnconfirmedStrokeCheck(view, stroke)
+                strokeId = null
+                onStrokeFinished(stroke)
             }
 
             MotionEvent.ACTION_CANCEL -> {
@@ -190,10 +265,6 @@ private class InkStrokeSession : View.OnTouchListener, InProgressStrokesFinished
             else -> return false
         }
         return true
-    }
-
-    override fun onStrokesFinished(strokes: Map<InProgressStrokeId, InkStroke>) {
-        view?.removeFinishedStrokes(strokes.keys)
     }
 }
 

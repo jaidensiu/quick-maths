@@ -152,7 +152,6 @@ class GameViewModel @Inject constructor(
                     elapsedTimeMs = SystemClock.elapsedRealtime() - startTimeMs - totalPausedMs,
                     recognizedText = "",
                     strokes = emptyList(),
-                    canvasClearKey = current.canvasClearKey + 1,
                 )
             } else {
                 current.copy(
@@ -160,7 +159,6 @@ class GameViewModel @Inject constructor(
                     questionNumber = current.questionNumber + 1,
                     recognizedText = "",
                     strokes = emptyList(),
-                    canvasClearKey = current.canvasClearKey + 1,
                 )
             }
         }

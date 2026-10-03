@@ -207,7 +207,6 @@ private fun GameHandwritingCanvas(
         onStrokeStarted = viewModel::onStrokeStarted,
         onStrokeMoved = viewModel::onStrokeMoved,
         onStrokeCancelled = viewModel::onStrokeCancelled,
-        clearKey = state.canvasClearKey,
         modifier = modifier.onSizeChanged { viewModel.onCanvasSizeChanged(size = it) },
     )
 }
