@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		229263A830744B6A00CC4BFA /* QuickMaths.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickMaths.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		229263C23074568600CC4BFA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +33,7 @@
 		2292639F30744B6A00CC4BFA = {
 			isa = PBXGroup;
 			children = (
+				229263C23074568600CC4BFA /* README.md */,
 				229263AA30744B6A00CC4BFA /* QuickMaths */,
 				229263A930744B6A00CC4BFA /* Products */,
 			);
