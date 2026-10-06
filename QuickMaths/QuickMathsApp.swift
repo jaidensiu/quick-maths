@@ -44,7 +44,7 @@ struct QuickMathsApp: App {
     private static func configureAppearance() {
         UINavigationBar.appearance().titleTextAttributes = [
             .font: Fredoka.uiFont(Fredoka.regular, size: 22, relativeTo: .title2),
-            .foregroundColor: UIColor(Palette.onBackground),
+            .foregroundColor: Palette.UIColors.onBackground,
         ]
         UISegmentedControl.appearance().setTitleTextAttributes(
             [.font: Fredoka.uiFont(Fredoka.medium, size: 14, relativeTo: .subheadline)],

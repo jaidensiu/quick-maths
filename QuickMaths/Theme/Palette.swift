@@ -20,12 +20,21 @@ enum Palette {
     /// Paper / NightInk
     static let background = dynamic(light: 0xFFFFFF, dark: 0x191919)
     /// InkSoft / NightText
-    static let onBackground = dynamic(light: 0x37352F, dark: 0xE6E5E3)
+    static let onBackground = Color(uiColor: UIColors.onBackground)
+
+    /// Roles needed by UIKit-drawn views (handwriting ink, navigation bar title).
+    enum UIColors {
+        static let onBackground = dynamicUIColor(light: 0x37352F, dark: 0xE6E5E3)
+    }
 
     private static func dynamic(light: UInt32, dark: UInt32) -> Color {
-        Color(uiColor: UIColor { traits in
+        Color(uiColor: dynamicUIColor(light: light, dark: dark))
+    }
+
+    private static func dynamicUIColor(light: UInt32, dark: UInt32) -> UIColor {
+        UIColor { traits in
             UIColor(rgb: traits.userInterfaceStyle == .dark ? dark : light)
-        })
+        }
     }
 }
 
