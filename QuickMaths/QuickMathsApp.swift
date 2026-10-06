@@ -11,6 +11,8 @@ import UIKit
 @main
 struct QuickMathsApp: App {
     @AppStorage(ThemePreference.storageKey) private var theme = ThemePreference.system
+    @Environment(\.scenePhase) private var scenePhase
+    private let music = MusicPlayer()
 
     init() {
         Fredoka.register()
@@ -26,6 +28,15 @@ struct QuickMathsApp: App {
             .tint(Palette.primary)
             .onAppear { theme.apply() }
             .onChange(of: theme) { newTheme in newTheme.apply() }
+            // Like Android, music pauses only once the app is backgrounded, not while it's
+            // briefly inactive (e.g. Control Center or the app switcher is showing).
+            .onChange(of: scenePhase) { phase in
+                switch phase {
+                case .active: music.setForeground(true)
+                case .background: music.setForeground(false)
+                default: break
+                }
+            }
         }
     }
 
