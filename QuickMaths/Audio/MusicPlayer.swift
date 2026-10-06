@@ -41,6 +41,12 @@ final class MusicPlayer {
 
     func setForeground(_ isForeground: Bool) {
         self.isForeground = isForeground
+        if isForeground {
+            // iOS doesn't guarantee an "interruption ended" for every "began": locking the phone
+            // interrupts the session and the end is never delivered once the app was suspended.
+            // Returning to the foreground is the signal to try again.
+            isInterrupted = false
+        }
         update()
     }
 
@@ -48,8 +54,10 @@ final class MusicPlayer {
         guard let player else { return }
         let shouldPlay = isForeground && !isInterrupted && !session.secondaryAudioShouldBeSilencedHint
         if shouldPlay, !player.isPlaying {
+            // Expected while e.g. a phone call still holds the audio hardware; the next
+            // foreground or interruption-ended event retries.
             if !player.play() {
-                logger.error("Music playback failed to start")
+                logger.warning("Music playback failed to start")
             }
         } else if !shouldPlay, player.isPlaying {
             player.pause()
