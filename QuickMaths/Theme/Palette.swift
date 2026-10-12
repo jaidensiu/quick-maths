@@ -21,6 +21,8 @@ enum Palette {
     static let background = dynamic(light: 0xFFFFFF, dark: 0x191919)
     /// InkSoft / NightText
     static let onBackground = Color(uiColor: UIColors.onBackground)
+    /// Red / NightRed
+    static let error = dynamic(light: 0xE03E3E, dark: 0xFF7369)
 
     /// Roles needed by UIKit-drawn views (handwriting ink, navigation bar title).
     enum UIColors {

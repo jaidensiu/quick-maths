@@ -17,6 +17,7 @@ extension Font {
     static let displayMedium = Font.custom(Fredoka.regular, size: 45, relativeTo: .largeTitle)
     static let titleLarge = Font.custom(Fredoka.regular, size: 22, relativeTo: .title2)
     static let titleSmall = Font.custom(Fredoka.medium, size: 14, relativeTo: .subheadline)
+    static let bodyMedium = Font.custom(Fredoka.regular, size: 14, relativeTo: .subheadline)
     static let labelLarge = Font.custom(Fredoka.medium, size: 14, relativeTo: .subheadline)
 }
 

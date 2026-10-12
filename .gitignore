@@ -9,3 +9,6 @@ build/
 
 # macOS
 .DS_Store
+
+# CocoaPods (restore with `pod install`)
+Pods/

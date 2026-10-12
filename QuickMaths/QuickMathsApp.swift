@@ -13,6 +13,7 @@ struct QuickMathsApp: App {
     @AppStorage(ThemePreference.storageKey) private var theme = ThemePreference.system
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var sounds = SoundManager()
+    @StateObject private var modelLoader = ModelLoader()
 
     init() {
         Fredoka.register()
@@ -23,6 +24,7 @@ struct QuickMathsApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(sounds)
+                .environmentObject(modelLoader)
                 .tint(Palette.primary)
                 .onAppear { theme.apply() }
                 .onChange(of: theme) { newTheme in newTheme.apply() }
