@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct StartView: View {
+    let onStartGame: () -> Void
+
     @State private var strokes: [HandwritingStroke] = []
 
     var body: some View {
@@ -28,8 +30,7 @@ struct StartView: View {
                         .foregroundStyle(Palette.onBackground)
                 }
                 .allowsHitTesting(false)
-                // Not wired up yet: the countdown and game screens come later.
-                Button("Start game") {}
+                Button("Start game", action: onStartGame)
                     .buttonStyle(FilledButtonStyle())
                     .padding(.top, 16)
             }

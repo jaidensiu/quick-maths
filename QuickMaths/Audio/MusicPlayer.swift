@@ -8,8 +8,8 @@
 import AVFoundation
 import OSLog
 
-/// Loops the background music while the app is in the foreground, like the Android app's
-/// `SoundManager` music player.
+/// Loops the background music while the app is in the foreground and music is allowed (not during
+/// a game), like the Android app's `SoundManager` music player.
 ///
 /// Uses the `.ambient` audio session, Apple's recommended category for game soundtracks: it is
 /// muted by the Ring/Silent switch and mixes with other apps instead of stopping them. When the
@@ -23,6 +23,7 @@ final class MusicPlayer {
     private var player: AVAudioPlayer?
     private var observers: [NSObjectProtocol] = []
     private var isForeground = false
+    private var isAllowed = true
     private var isInterrupted = false
 
     init() {
@@ -50,9 +51,15 @@ final class MusicPlayer {
         update()
     }
 
+    func setAllowed(_ isAllowed: Bool) {
+        self.isAllowed = isAllowed
+        update()
+    }
+
     private func update() {
         guard let player else { return }
-        let shouldPlay = isForeground && !isInterrupted && !session.secondaryAudioShouldBeSilencedHint
+        let shouldPlay = isForeground && isAllowed && !isInterrupted
+            && !session.secondaryAudioShouldBeSilencedHint
         if shouldPlay, !player.isPlaying {
             // Expected while e.g. a phone call still holds the audio hardware; the next
             // foreground or interruption-ended event retries.

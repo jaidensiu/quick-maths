@@ -13,6 +13,7 @@ import UIKit
 /// The Android app's Material 3 type scale in Fredoka (`ui/theme/Type.kt`).
 /// Each style scales with Dynamic Type relative to the closest iOS text style.
 extension Font {
+    static let displayLarge = Font.custom(Fredoka.regular, size: 57, relativeTo: .largeTitle)
     static let displayMedium = Font.custom(Fredoka.regular, size: 45, relativeTo: .largeTitle)
     static let titleLarge = Font.custom(Fredoka.regular, size: 22, relativeTo: .title2)
     static let titleSmall = Font.custom(Fredoka.medium, size: 14, relativeTo: .subheadline)
