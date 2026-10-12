@@ -11,6 +11,7 @@ struct StartView: View {
     let onStartGame: () -> Void
 
     @EnvironmentObject private var modelLoader: ModelLoader
+    @AppStorage(BestTime.storageKey) private var bestTimeMs: Int?
     @State private var strokes: [HandwritingStroke] = []
 
     var body: some View {
@@ -29,6 +30,12 @@ struct StartView: View {
                     Text("Quick Maths")
                         .font(.displayMedium)
                         .foregroundStyle(Palette.onBackground)
+                    if let bestTimeMs {
+                        Text("Best time: \(BestTime.format(bestTimeMs))")
+                            .font(.titleMedium)
+                            .foregroundStyle(Palette.primary)
+                            .padding(.top, 16)
+                    }
                 }
                 .allowsHitTesting(false)
                 Button(startLabel, action: onStartGame)

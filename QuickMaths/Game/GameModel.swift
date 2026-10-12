@@ -101,7 +101,9 @@ final class GameModel: ObservableObject {
         recognizedText = ""
         if questionNumber >= Self.totalQuestions {
             let elapsed = ProcessInfo.processInfo.systemUptime - startTime - totalPausedTime
-            finishedTimeMs = Int((elapsed * 1000).rounded())
+            let timeMs = Int((elapsed * 1000).rounded())
+            BestTime.record(timeMs)
+            finishedTimeMs = timeMs
         } else {
             question = MathQuestion.random()
             questionNumber += 1

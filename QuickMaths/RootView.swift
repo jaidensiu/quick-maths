@@ -11,9 +11,10 @@ import SwiftUI
 /// the game flow fades in over the start screen like Android's fade transitions, and covers the
 /// navigation bar so there's no back button or swipe-back mid-game (Android's empty `BackHandler`).
 struct RootView: View {
-    private enum Screen {
+    private enum Screen: Equatable {
         case countdown
         case game
+        case results(elapsedTimeMs: Int)
     }
 
     @EnvironmentObject private var sounds: SoundManager
@@ -32,7 +33,7 @@ struct RootView: View {
             .navigationViewStyle(.stack)
             .accessibilityHidden(screen != nil)
             // Unlike Android's nav host, the start screen stays rendered underneath, so hide it
-            // behind a backdrop that stays up while the countdown cross-fades into the game.
+            // behind a backdrop that stays up while the game-flow screens cross-fade.
             if screen != nil {
                 Palette.background
                     .ignoresSafeArea()
@@ -46,22 +47,29 @@ struct RootView: View {
                     // Keep each screen above the one it replaces while they cross-fade.
                     .zIndex(2)
             case .game:
-                // Not wired to results yet: a finished game returns here until that screen exists.
                 GameView(
                     recognizer: modelLoader.recognizer,
                     sounds: sounds,
-                    onFinished: { _ in show(nil) },
+                    onFinished: { show(.results(elapsedTimeMs: $0)) },
                     onExit: { show(nil) }
                 )
                 .transition(.opacity)
                 .zIndex(3)
+            case .results(let elapsedTimeMs):
+                ResultsView(
+                    elapsedTimeMs: elapsedTimeMs,
+                    onPlayAgain: { show(.countdown) },
+                    onBackToHome: { show(nil) }
+                )
+                .transition(.opacity)
+                .zIndex(4)
             case nil:
                 EmptyView()
             }
         }
         // Music stays off during the countdown and the game, like Android's `isMusicAllowed`.
         .onChange(of: screen) { screen in
-            sounds.setMusicAllowed(screen == nil)
+            sounds.setMusicAllowed(screen != .countdown && screen != .game)
         }
     }
 
