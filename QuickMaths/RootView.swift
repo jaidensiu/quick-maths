@@ -69,7 +69,7 @@ struct RootView: View {
         }
         // Music stays off during the countdown and the game, like Android's `isMusicAllowed`.
         .onChange(of: screen) { screen in
-            sounds.setMusicAllowed(screen != .countdown && screen != .game)
+            sounds.setGameActive(screen == .countdown || screen == .game)
         }
     }
 

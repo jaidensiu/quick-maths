@@ -33,6 +33,12 @@ final class GameModel: ObservableObject {
     private var pauseStartedAt: TimeInterval = 0
     private var writingArea: CGSize?
     private var recognition: Task<Void, Never>?
+    private var pencilIdle: Task<Void, Never>?
+
+    /// Android: below this the pen is resting, so it doesn't count as movement.
+    private static let pencilMinSpeedPxPerMs: CGFloat = 0.01
+    /// Android: `PENCIL_IDLE_TIMEOUT_MS`; a pen still for this long goes quiet.
+    private static let pencilIdleNanos: UInt64 = 50_000_000
 
     init(recognizer: NumberRecognizer, sounds: SoundManager) {
         self.recognizer = recognizer
@@ -43,7 +49,26 @@ final class GameModel: ObservableObject {
         writingArea = size
     }
 
+    func onStrokeStarted() {
+        guard !isPaused, finishedTimeMs == nil else { return }
+        // The answer isn't finished yet; the next read includes this stroke.
+        recognition?.cancel()
+        sounds.startPencil()
+        scheduleIdleMute()
+    }
+
+    func onStrokeMoved(speedPxPerMs speed: CGFloat) {
+        guard speed >= Self.pencilMinSpeedPxPerMs else { return }
+        sounds.updatePencilSpeed(pxPerMs: speed)
+        scheduleIdleMute()
+    }
+
+    func onStrokeCancelled() {
+        stopPencil()
+    }
+
     func onStrokeFinished(_ stroke: HandwritingStroke) {
+        stopPencil()
         guard !isPaused, finishedTimeMs == nil else { return }
         strokes.append(stroke)
         recognize(strokes)
@@ -59,6 +84,7 @@ final class GameModel: ObservableObject {
         guard !isPaused, finishedTimeMs == nil else { return }
         pauseStartedAt = ProcessInfo.processInfo.systemUptime
         recognition?.cancel()
+        stopPencil()
         isPaused = true
     }
 
@@ -70,6 +96,20 @@ final class GameModel: ObservableObject {
         if !strokes.isEmpty {
             recognize(strokes)
         }
+    }
+
+    private func scheduleIdleMute() {
+        pencilIdle?.cancel()
+        pencilIdle = Task { [sounds] in
+            try? await Task.sleep(nanoseconds: Self.pencilIdleNanos)
+            guard !Task.isCancelled else { return }
+            sounds.mutePencil()
+        }
+    }
+
+    private func stopPencil() {
+        pencilIdle?.cancel()
+        sounds.stopPencil()
     }
 
     /// Re-reads every stroke written so far, superseding any read still in flight.

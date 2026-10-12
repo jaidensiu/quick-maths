@@ -147,7 +147,13 @@ struct GameView: View {
 
     private var canvas: some View {
         GeometryReader { proxy in
-            HandwritingCanvas(strokes: game.strokes, onStrokeFinished: game.onStrokeFinished)
+            HandwritingCanvas(
+                strokes: game.strokes,
+                onStrokeFinished: game.onStrokeFinished,
+                onStrokeStarted: game.onStrokeStarted,
+                onStrokeMoved: { game.onStrokeMoved(speedPxPerMs: $0) },
+                onStrokeCancelled: game.onStrokeCancelled
+            )
                 .onAppear { game.onCanvasSizeChanged(proxy.size) }
                 .onChange(of: proxy.size) { size in game.onCanvasSizeChanged(size) }
         }

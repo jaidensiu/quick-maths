@@ -15,6 +15,10 @@ import UIKit
 struct HandwritingCanvas: UIViewRepresentable {
     let strokes: [HandwritingStroke]
     let onStrokeFinished: (HandwritingStroke) -> Void
+    var onStrokeStarted: () -> Void = {}
+    /// The pen's speed in pixels/ms (Android's units) since the last move.
+    var onStrokeMoved: (_ speedPxPerMs: CGFloat) -> Void = { _ in }
+    var onStrokeCancelled: () -> Void = {}
     /// Android: `strokeWidth = 4.dp`.
     var strokeWidth: CGFloat = 4
     /// Android: `MaterialTheme.colorScheme.onSurface` (InkSoft / NightText).
@@ -28,6 +32,9 @@ struct HandwritingCanvas: UIViewRepresentable {
         view.strokeWidth = strokeWidth
         view.strokeColor = strokeColor
         view.onStrokeFinished = onStrokeFinished
+        view.onStrokeStarted = onStrokeStarted
+        view.onStrokeMoved = onStrokeMoved
+        view.onStrokeCancelled = onStrokeCancelled
         view.strokes = strokes
     }
 }
@@ -38,6 +45,9 @@ struct HandwritingCanvas: UIViewRepresentable {
 /// `MotionEventPredictor`, to cut perceived latency.
 final class HandwritingCanvasView: UIView {
     var onStrokeFinished: (HandwritingStroke) -> Void = { _ in }
+    var onStrokeStarted: () -> Void = {}
+    var onStrokeMoved: (_ speedPxPerMs: CGFloat) -> Void = { _ in }
+    var onStrokeCancelled: () -> Void = {}
 
     var strokes: [HandwritingStroke] = [] {
         didSet {
@@ -58,6 +68,8 @@ final class HandwritingCanvasView: UIView {
     private let activeLayer = CAShapeLayer()
     private var activeTouch: UITouch?
     private var activePoints: [HandwritingPoint] = []
+    /// Where and when the last move was, for the pen speed.
+    private var lastMove: HandwritingPoint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -99,8 +111,11 @@ final class HandwritingCanvasView: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard activeTouch == nil, let touch = touches.first else { return }
         activeTouch = touch
-        activePoints = [point(from: touch)]
+        let start = point(from: touch)
+        activePoints = [start]
+        lastMove = start
         renderActiveStroke(predicted: [])
+        onStrokeStarted()
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -109,6 +124,7 @@ final class HandwritingCanvasView: UIView {
         activePoints.append(contentsOf: samples.map(point(from:)))
         let predicted = event?.predictedTouches(for: touch) ?? []
         renderActiveStroke(predicted: predicted.map(point(from:)))
+        reportSpeed(at: point(from: touch))
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -128,6 +144,7 @@ final class HandwritingCanvasView: UIView {
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = activeTouch, touches.contains(touch) else { return }
         resetActiveStroke()
+        onStrokeCancelled()
     }
 
     // MARK: - Drawing
@@ -138,9 +155,20 @@ final class HandwritingCanvasView: UIView {
         }
     }
 
+    /// Android reports pixels per ms; points are scaled up to pixels to keep its sound tuning.
+    private func reportSpeed(at point: HandwritingPoint) {
+        guard let last = lastMove else { return }
+        let elapsedMs = (point.timestamp - last.timestamp) * 1000
+        guard elapsedMs > 0 else { return }
+        let distance = hypot(point.location.x - last.location.x, point.location.y - last.location.y)
+        lastMove = point
+        onStrokeMoved(distance * traitCollection.displayScale / elapsedMs)
+    }
+
     private func resetActiveStroke() {
         activeTouch = nil
         activePoints = []
+        lastMove = nil
         withoutAnimation { activeLayer.path = nil }
     }
 
