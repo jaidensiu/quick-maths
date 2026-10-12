@@ -13,6 +13,7 @@ import Combine
 final class SoundManager: ObservableObject {
     private let music = MusicPlayer()
     private let tick = SoundEffect(resource: "Tick")
+    private let correct = SoundEffect(resource: "Correct")
 
     func setForeground(_ isForeground: Bool) {
         music.setForeground(isForeground)
@@ -24,5 +25,9 @@ final class SoundManager: ObservableObject {
 
     func playTick() {
         tick.play()
+    }
+
+    func playCorrect() {
+        correct.play()
     }
 }

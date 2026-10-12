@@ -15,6 +15,7 @@ import UIKit
 extension Font {
     static let displayLarge = Font.custom(Fredoka.regular, size: 57, relativeTo: .largeTitle)
     static let displayMedium = Font.custom(Fredoka.regular, size: 45, relativeTo: .largeTitle)
+    static let headlineLarge = Font.custom(Fredoka.regular, size: 32, relativeTo: .title)
     static let titleLarge = Font.custom(Fredoka.regular, size: 22, relativeTo: .title2)
     static let titleSmall = Font.custom(Fredoka.medium, size: 14, relativeTo: .subheadline)
     static let bodyMedium = Font.custom(Fredoka.regular, size: 14, relativeTo: .subheadline)

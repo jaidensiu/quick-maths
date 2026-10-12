@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Counts 3, 2, 1 before a game, like Android's `CountdownScreen`: each number ticks, then grows
-/// and fades out over a second. The music stays paused while it shows.
+/// and fades out over a second.
 struct CountdownView: View {
     let onFinished: () -> Void
 
@@ -25,8 +25,6 @@ struct CountdownView: View {
             .transition(.identity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Palette.background.ignoresSafeArea())
-            .onAppear { sounds.setMusicAllowed(false) }
-            .onDisappear { sounds.setMusicAllowed(true) }
             .task { await run() }
     }
 
