@@ -6,9 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(oboe REQUIRED CONFIG)
 
+set(SHARED_AUDIO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../shared/audio)
+
 add_library(quickmaths_audio SHARED
         AudioEngine.cpp
-        JniBridge.cpp)
+        JniBridge.cpp
+        ${SHARED_AUDIO_DIR}/Mixer.cpp)
+
+target_include_directories(quickmaths_audio PRIVATE ${SHARED_AUDIO_DIR})
 
 target_compile_options(quickmaths_audio PRIVATE -Wall)
 

@@ -21,8 +21,17 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		229263AA30744B6A00CC4BFA /* QuickMaths */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = QuickMaths;
 			sourceTree = "<group>";
+		};
+		C0FFEE0130744B6A00CC4BFA /* ../shared/audio */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = ../shared/audio;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -52,6 +61,7 @@
 			children = (
 				229263C23074568600CC4BFA /* README.md */,
 				229263AA30744B6A00CC4BFA /* QuickMaths */,
+				C0FFEE0130744B6A00CC4BFA /* ../shared/audio */,
 				229263A930744B6A00CC4BFA /* Products */,
 				08B9EA5254FBB37CE41562E9 /* Pods */,
 				B39D2797E0D36CAB4E840582 /* Frameworks */,
@@ -93,6 +103,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				229263AA30744B6A00CC4BFA /* QuickMaths */,
+				C0FFEE0130744B6A00CC4BFA /* ../shared/audio */,
 			);
 			name = QuickMaths;
 			productName = QuickMaths;
@@ -174,13 +185,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-QuickMaths/Pods-QuickMaths-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-QuickMaths/Pods-QuickMaths-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -349,6 +356,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = ../shared/audio/QuickMathsMixer.h;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -383,6 +391,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = ../shared/audio/QuickMathsMixer.h;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

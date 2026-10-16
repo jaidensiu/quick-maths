@@ -1,7 +1,5 @@
 #pragma once
 
-#include <oboe/Oboe.h>
-
 #include <array>
 #include <atomic>
 #include <cstdint>
@@ -11,13 +9,12 @@
 #include <vector>
 
 namespace quickmaths {
-    class AudioEngine
-            : public oboe::AudioStreamDataCallback, public oboe::AudioStreamErrorCallback {
+    // Platform-independent SFX mixer shared by Android (Oboe) and iOS (AVAudioSourceNode).
+    // Control calls may come from any thread; render() runs on the platform's audio thread.
+    class Mixer {
     public:
         static constexpr int kMaxVoices = 12;
         static constexpr int kInvalidHandle = -1;
-
-        bool init(int32_t defaultSampleRate, int32_t defaultFramesPerBurst);
 
         bool loadSample(int32_t sampleId, std::vector<float> monoFrames, int32_t sampleRate);
 
@@ -29,12 +26,12 @@ namespace quickmaths {
 
         void stop(int32_t handle);
 
-        void setForeground(bool foreground);
+        // Drops every voice at once. Call only while render() can't run, i.e. the stream is
+        // stopped, or the audio thread may keep reading a voice that play() is reusing.
+        void stopAll();
 
-        oboe::DataCallbackResult
-        onAudioReady(oboe::AudioStream *stream, void *audioData, int32_t numFrames) override;
-
-        void onErrorAfterClose(oboe::AudioStream *stream, oboe::Result error) override;
+        // Mixes all voices into interleaved stereo `out`, overwriting it.
+        void render(float *out, int32_t numFrames, float outSampleRate);
 
     private:
         struct Sample {
@@ -53,16 +50,11 @@ namespace quickmaths {
             uint32_t generation = 0;
         };
 
-        bool openStream();
-
         Voice *voiceForHandle(int32_t handle);
 
         std::mutex mLock;
-        std::shared_ptr<oboe::AudioStream> mStream;
         std::unordered_map<int32_t, std::unique_ptr<Sample>> mSamples;
         std::array<Voice, kMaxVoices> mVoices;
-        bool mForeground = true;
-        bool mInitialized = false;
     };
 
 }

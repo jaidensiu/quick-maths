@@ -13,27 +13,32 @@ import CoreGraphics
 /// `MainViewModel`) and the app reports foreground changes.
 final class SoundManager: ObservableObject {
     private let music = MusicPlayer()
-    private let tick = SoundEffect(resource: "Tick")
-    private let correct = SoundEffect(resource: "Correct")
-    private let pencil = PencilSound()
+    private let sfx = SfxEngine()
+    private lazy var pencil = PencilSound(sfx: sfx)
 
     func setForeground(_ isForeground: Bool) {
         music.setForeground(isForeground)
-        pencil.setForeground(isForeground)
+        sfx.setForeground(isForeground)
+        if !isForeground {
+            pencil.stop()
+        }
     }
 
-    /// While the countdown or a game is showing, the music stops and the pencil gets ready.
+    /// While the countdown or a game is showing, the music stops and the sound effects get ready.
     func setGameActive(_ isActive: Bool) {
         music.setAllowed(!isActive)
-        pencil.setEnabled(isActive)
+        sfx.setEnabled(isActive)
+        if !isActive {
+            pencil.stop()
+        }
     }
 
     func playTick() {
-        tick.play()
+        sfx.play(.tick)
     }
 
     func playCorrect() {
-        correct.play()
+        sfx.play(.correct)
     }
 
     func startPencil() {

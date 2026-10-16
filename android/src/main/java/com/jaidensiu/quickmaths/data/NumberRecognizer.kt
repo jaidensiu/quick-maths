@@ -74,14 +74,6 @@ class NumberRecognizer @Inject constructor() {
         } ?: candidates.firstOrNull()?.text?.filter(predicate = Char::isDigit).orEmpty()
     }
 
-    private fun String.asNumberOrNull(): String? {
-        val normalized = this
-            .filterNot(predicate = Char::isWhitespace)
-            .map { DIGIT_LOOKALIKES[it] ?: it }
-            .joinToString(separator = "")
-        return normalized.takeIf { it.matches(regex = NUMBER_REGEX) }
-    }
-
     private suspend fun warmUp() {
         val stroke = Ink.Stroke.builder().apply {
             addPoint(Ink.Point.create(0f, 0f, 0L))
@@ -89,17 +81,24 @@ class NumberRecognizer @Inject constructor() {
         }.build()
         recognizer.recognize(Ink.builder().addStroke(stroke).build()).await()
     }
-
-    private companion object {
-        val NUMBER_REGEX = Regex(pattern = "-?\\d+([.,]\\d+)?")
-        val DIGIT_LOOKALIKES = mapOf(
-            'O' to '0', 'o' to '0', 'D' to '0',
-            'l' to '1', 'I' to '1', 'i' to '1', '|' to '1', '!' to '1',
-            'Z' to '2', 'z' to '2',
-            'S' to '5', 's' to '5',
-            'G' to '6', 'b' to '6',
-            'B' to '8',
-            'g' to '9', 'q' to '9',
-        )
-    }
 }
+
+/** The text as a number after mapping letters that look like digits, or `null` if it isn't one. */
+internal fun String.asNumberOrNull(): String? {
+    val normalized = this
+        .filterNot(predicate = Char::isWhitespace)
+        .map { DIGIT_LOOKALIKES[it] ?: it }
+        .joinToString(separator = "")
+    return normalized.takeIf { it.matches(regex = NUMBER_REGEX) }
+}
+
+private val NUMBER_REGEX = Regex(pattern = "-?\\d+([.,]\\d+)?")
+private val DIGIT_LOOKALIKES = mapOf(
+    'O' to '0', 'o' to '0', 'D' to '0',
+    'l' to '1', 'I' to '1', 'i' to '1', '|' to '1', '!' to '1',
+    'Z' to '2', 'z' to '2',
+    'S' to '5', 's' to '5',
+    'G' to '6', 'b' to '6',
+    'B' to '8',
+    'g' to '9', 'q' to '9',
+)

@@ -91,6 +91,10 @@ class GameViewModel @Inject constructor(
         stopPencil()
         val strokes = _state.value.strokes + stroke
         _state.update { it.copy(strokes = strokes) }
+        recognize(strokes = strokes)
+    }
+
+    private fun recognize(strokes: List<HandwritingStroke>) {
         recognitionJob?.cancel()
         recognitionJob = viewModelScope.launch {
             val text = try {
@@ -132,6 +136,10 @@ class GameViewModel @Inject constructor(
         }
         totalPausedMs += SystemClock.elapsedRealtime() - pauseStartedAtMs
         _state.update { it.copy(isPaused = false) }
+        // Pausing cancels a read in flight; re-read what's on the canvas.
+        if (current.strokes.isNotEmpty()) {
+            recognize(strokes = current.strokes)
+        }
     }
 
     fun onClear() {

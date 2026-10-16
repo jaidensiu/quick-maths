@@ -28,7 +28,6 @@ android {
         targetSdk = 37
         versionCode = 2
         versionName = "1.1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 arguments += "-DANDROID_STL=c++_shared"
@@ -121,10 +120,5 @@ dependencies {
     implementation(libs.oboe)
     ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

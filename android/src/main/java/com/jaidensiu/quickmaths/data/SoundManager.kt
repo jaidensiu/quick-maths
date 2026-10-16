@@ -38,6 +38,9 @@ class SoundManager @Inject constructor(
     private var isForegrounded = true
 
     private var pencilVoiceHandle = NativeSfxEngine.INVALID_HANDLE
+
+    // The voice the last retrigger left playing out, silenced with the current one.
+    private var previousPencilVoiceHandle = NativeSfxEngine.INVALID_HANDLE
     private var pencilStartedAtMs = 0L
     private var musicPlayer: ExoPlayer? = null
     private var pendingBackgroundStop: Job? = null
@@ -79,12 +82,14 @@ class SoundManager @Inject constructor(
     fun mutePencil() {
         if (pencilVoiceHandle != NativeSfxEngine.INVALID_HANDLE) {
             nativeSfx.setVolume(handle = pencilVoiceHandle, volume = 0f)
+            nativeSfx.setVolume(handle = previousPencilVoiceHandle, volume = 0f)
         }
     }
 
     fun stopPencil() {
         if (pencilVoiceHandle != NativeSfxEngine.INVALID_HANDLE) {
             nativeSfx.stop(handle = pencilVoiceHandle)
+            nativeSfx.stop(handle = previousPencilVoiceHandle)
             pencilVoiceHandle = NativeSfxEngine.INVALID_HANDLE
         }
     }
@@ -101,7 +106,8 @@ class SoundManager @Inject constructor(
     fun onAppBackgrounded() {
         isForegrounded = false
         pendingBackgroundStop?.cancel()
-        pendingBackgroundStop = scope.launch {
+        // On Main, like onAppForegrounded, so its cancel() can't land between the check and the stop.
+        pendingBackgroundStop = scope.launch(Dispatchers.Main) {
             delay(duration = STREAM_RELEASE_DELAY_MS.milliseconds)
             if (isNativeSfxReady && !isForegrounded) {
                 nativeSfx.setForeground(foreground = false)
@@ -167,6 +173,7 @@ class SoundManager @Inject constructor(
         }
         val handle = nativeSfx.play(SAMPLE_PENCIL, volume, rate)
         if (handle != NativeSfxEngine.INVALID_HANDLE) {
+            previousPencilVoiceHandle = pencilVoiceHandle
             pencilVoiceHandle = handle
             pencilStartedAtMs = SystemClock.uptimeMillis()
         }
