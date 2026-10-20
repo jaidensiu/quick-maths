@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -93,6 +94,11 @@ android {
     }
 }
 
+baselineProfile {
+    // Also emit a startup profile so R8 lays out startup classes in the primary dex.
+    dexLayoutOptimization = true
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -120,6 +126,7 @@ dependencies {
     implementation(libs.mlkit.digital.ink.recognition)
     implementation(libs.oboe)
     ksp(libs.hilt.compiler)
+    baselineProfile(project(":baselineprofile"))
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

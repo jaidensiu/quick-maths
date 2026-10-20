@@ -26,3 +26,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Quick Maths"
 include(":app")
+include(":baselineprofile")
