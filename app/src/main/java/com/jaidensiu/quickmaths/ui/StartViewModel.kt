@@ -9,6 +9,7 @@ import com.jaidensiu.quickmaths.data.NetworkMonitor
 import com.jaidensiu.quickmaths.data.NumberRecognizer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,7 @@ class StartViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(value = StartState())
     val state: StateFlow<StartState> = _state.asStateFlow()
+    private var prepareJob: Job? = null
 
     init {
         prepareModel()
@@ -61,7 +63,9 @@ class StartViewModel @Inject constructor(
     }
 
     private fun prepareModel() {
-        viewModelScope.launch {
+        // Supersede an older attempt so it can't overwrite this one's status when it times out.
+        prepareJob?.cancel()
+        prepareJob = viewModelScope.launch {
             if (!recognizer.isModelDownloaded() && !networkMonitor.isCurrentlyOnline()) {
                 _state.update { it.copy(modelStatus = ModelStatus.OFFLINE) }
                 return@launch
