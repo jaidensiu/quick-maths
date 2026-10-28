@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaidensiu.quickmaths.navigation.QuickMathsNavHost
 import com.jaidensiu.quickmaths.ui.theme.QuickMathsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
             val theme by viewModel.theme.collectAsStateWithLifecycle()
 
             QuickMathsTheme(themePreference = theme) {
-                QuickMathsApp(onMusicAllowedChanged = viewModel::onMusicAllowedChanged)
+                QuickMathsNavHost(onMusicAllowedChanged = viewModel::onMusicAllowedChanged)
             }
         }
     }

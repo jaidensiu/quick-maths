@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths
+package com.jaidensiu.quickmaths.navigation
 
 import kotlinx.serialization.Serializable
 

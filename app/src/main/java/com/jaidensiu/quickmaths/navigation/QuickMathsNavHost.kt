@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths
+package com.jaidensiu.quickmaths.navigation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -19,15 +19,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.jaidensiu.quickmaths.ui.countdown.CountdownScreen
 import com.jaidensiu.quickmaths.ui.game.GameScreen
+import com.jaidensiu.quickmaths.ui.game.TOTAL_QUESTIONS
 import com.jaidensiu.quickmaths.ui.results.ResultsScreen
 import com.jaidensiu.quickmaths.ui.settings.SettingsScreen
 import com.jaidensiu.quickmaths.ui.start.StartScreen
-import com.jaidensiu.quickmaths.ui.game.TOTAL_QUESTIONS
 
 private const val NAV_TRANSITION_MS = 200
 
 @Composable
-fun QuickMathsApp(onMusicAllowedChanged: (Boolean) -> Unit) {
+fun QuickMathsNavHost(onMusicAllowedChanged: (Boolean) -> Unit) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
