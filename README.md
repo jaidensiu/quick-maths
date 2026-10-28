@@ -8,3 +8,6 @@ Icons from [Flaticon by Freepik](https://www.flaticon.com/)
   - Wire via `automotiveImplementation(":car")` / `mobileImplementation(":car:stub")`
   - Extract `GearMonitor` interface into `:core:game`
   - Move `useLibrary("android.car")` into `:car`
+- Regenerate baseline profiles
+- Organize submodules flavours (automotive, debug, mobile, mobileRelease, etc.)
+- Bump dep versions
