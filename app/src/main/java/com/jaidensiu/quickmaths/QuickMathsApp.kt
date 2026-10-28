@@ -24,10 +24,10 @@ import com.jaidensiu.quickmaths.ui.settings.SettingsScreen
 import com.jaidensiu.quickmaths.ui.start.StartScreen
 import com.jaidensiu.quickmaths.ui.game.TOTAL_QUESTIONS
 
-private const val NAV_TRANSITION_MS = 300
+private const val NAV_TRANSITION_MS = 200
 
 @Composable
-fun QuickMathsApp(onMusicAllowedChanged: (Boolean) -> Unit = {}) {
+fun QuickMathsApp(onMusicAllowedChanged: (Boolean) -> Unit) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
