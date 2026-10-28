@@ -12,3 +12,4 @@ Icons from [Flaticon by Freepik](https://www.flaticon.com/)
 - Organize submodules flavours (automotive, debug, mobile, mobileRelease, etc.)
 - Bump dep versions
 - Add analytics
+- Add pre-commit hook for fmt/lint
