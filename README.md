@@ -11,3 +11,4 @@ Icons from [Flaticon by Freepik](https://www.flaticon.com/)
 - Regenerate baseline profiles
 - Organize submodules flavours (automotive, debug, mobile, mobileRelease, etc.)
 - Bump dep versions
+- Add analytics
