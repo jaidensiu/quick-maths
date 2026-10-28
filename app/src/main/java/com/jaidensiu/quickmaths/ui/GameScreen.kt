@@ -128,6 +128,7 @@ fun GameContent(
                     }
                 }
             }
+
             else -> {
                 val isExpandedWidth = currentWindowAdaptiveInfo()
                     .windowSizeClass
@@ -181,6 +182,7 @@ fun GameContent(
                                 TextButton(
                                     onClick = onClear,
                                     modifier = Modifier.padding(top = 8.dp),
+                                    enabled = state.strokes.isNotEmpty(),
                                 ) {
                                     Text(
                                         text = "Clear",
@@ -213,6 +215,7 @@ fun GameContent(
                             TextButton(
                                 onClick = onClear,
                                 modifier = Modifier.padding(end = 8.dp),
+                                enabled = state.strokes.isNotEmpty(),
                             ) {
                                 Text(
                                     text = "Clear",

@@ -83,7 +83,10 @@ fun StartContent(
                     }
                 },
                 actions = {
-                    TextButton(onClick = onClear) {
+                    TextButton(
+                        onClick = onClear,
+                        enabled = strokes.isNotEmpty(),
+                    ) {
                         Text(
                             text = "Clear",
                             style = MaterialTheme.typography.titleLarge,
