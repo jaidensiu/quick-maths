@@ -17,12 +17,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.jaidensiu.quickmaths.ui.CountdownScreen
-import com.jaidensiu.quickmaths.ui.GameScreen
-import com.jaidensiu.quickmaths.ui.ResultsScreen
-import com.jaidensiu.quickmaths.ui.SettingsScreen
-import com.jaidensiu.quickmaths.ui.StartScreen
-import com.jaidensiu.quickmaths.ui.TOTAL_QUESTIONS
+import com.jaidensiu.quickmaths.ui.countdown.CountdownScreen
+import com.jaidensiu.quickmaths.ui.game.GameScreen
+import com.jaidensiu.quickmaths.ui.results.ResultsScreen
+import com.jaidensiu.quickmaths.ui.settings.SettingsScreen
+import com.jaidensiu.quickmaths.ui.start.StartScreen
+import com.jaidensiu.quickmaths.ui.game.TOTAL_QUESTIONS
 
 private const val NAV_TRANSITION_MS = 300
 

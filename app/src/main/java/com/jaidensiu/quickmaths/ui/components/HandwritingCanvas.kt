@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.components
 
 import android.annotation.SuppressLint
 import android.content.Context

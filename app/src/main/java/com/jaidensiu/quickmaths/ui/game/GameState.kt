@@ -1,6 +1,7 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.game
 
 import com.jaidensiu.quickmaths.domain.MathQuestion
+import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
 
 const val TOTAL_QUESTIONS = 20
 

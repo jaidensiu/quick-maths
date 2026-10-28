@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.components
 
 import androidx.compose.ui.graphics.Path
 import com.jaidensiu.quickmaths.domain.HandwritingPoint

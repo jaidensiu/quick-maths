@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.start
 
 enum class ModelStatus {
     LOADING,

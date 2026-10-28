@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.start
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaidensiu.quickmaths.R
+import com.jaidensiu.quickmaths.ui.components.HandwritingCanvas
+import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
+import com.jaidensiu.quickmaths.ui.shared.formatElapsedTime
 
 @Composable
 fun StartScreen(
@@ -125,7 +128,7 @@ fun StartContent(
                 )
                 state.bestTimeMs?.let { bestTimeMs ->
                     Text(
-                        text = "Best time: ${Util.formatElapsedTime(elapsedTimeMs = bestTimeMs)}",
+                        text = "Best time: ${bestTimeMs.formatElapsedTime()}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 16.dp),

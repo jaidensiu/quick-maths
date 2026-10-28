@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.results
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaidensiu.quickmaths.ui.shared.formatElapsedTime
 
 @Composable
 fun ResultsScreen(
@@ -61,12 +62,12 @@ fun ResultsContent(
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = "Time: ${Util.formatElapsedTime(elapsedTimeMs = elapsedTimeMs)}",
+                text = "Time: ${elapsedTimeMs.formatElapsedTime()}",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(top = 16.dp),
             )
             Text(
-                text = "Best time: ${Util.formatElapsedTime(elapsedTimeMs = bestTimeMs)}",
+                text = "Best time: ${bestTimeMs.formatElapsedTime()}",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(top = 16.dp),
             )

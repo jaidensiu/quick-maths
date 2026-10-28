@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

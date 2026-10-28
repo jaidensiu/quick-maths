@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.start
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

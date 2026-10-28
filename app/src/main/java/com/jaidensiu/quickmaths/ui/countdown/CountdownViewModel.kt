@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.countdown
 
 import androidx.lifecycle.ViewModel
 import com.jaidensiu.quickmaths.data.SoundManager

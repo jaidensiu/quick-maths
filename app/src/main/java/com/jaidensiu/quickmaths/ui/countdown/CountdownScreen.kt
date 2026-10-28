@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.countdown
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animate

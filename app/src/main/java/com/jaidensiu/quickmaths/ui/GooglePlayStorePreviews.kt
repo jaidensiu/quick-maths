@@ -33,6 +33,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
 import com.jaidensiu.quickmaths.domain.MathQuestion
 import com.jaidensiu.quickmaths.domain.Operation
+import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
+import com.jaidensiu.quickmaths.ui.components.toSmoothedPath
+import com.jaidensiu.quickmaths.ui.game.GameContent
+import com.jaidensiu.quickmaths.ui.game.GameState
+import com.jaidensiu.quickmaths.ui.game.TOTAL_QUESTIONS
+import com.jaidensiu.quickmaths.ui.results.ResultsContent
+import com.jaidensiu.quickmaths.ui.start.ModelStatus
+import com.jaidensiu.quickmaths.ui.start.StartContent
+import com.jaidensiu.quickmaths.ui.start.StartState
 import com.jaidensiu.quickmaths.ui.theme.QuickMathsTheme
 import kotlin.math.cos
 import kotlin.math.sin

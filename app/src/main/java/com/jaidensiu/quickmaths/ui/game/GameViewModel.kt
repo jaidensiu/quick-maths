@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.ui
+package com.jaidensiu.quickmaths.ui.game
 
 import android.os.SystemClock
 import android.util.Log
@@ -10,6 +10,7 @@ import com.jaidensiu.quickmaths.data.GearMonitor
 import com.jaidensiu.quickmaths.data.NumberRecognizer
 import com.jaidensiu.quickmaths.data.SoundManager
 import com.jaidensiu.quickmaths.domain.MathQuestion
+import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
