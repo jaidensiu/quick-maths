@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.prefs
 
 import android.content.Context
 import android.util.Log

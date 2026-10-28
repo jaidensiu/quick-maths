@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.device
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

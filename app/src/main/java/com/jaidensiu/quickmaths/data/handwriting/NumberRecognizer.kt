@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.handwriting
 
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.common.model.DownloadConditions
@@ -46,7 +46,7 @@ class NumberRecognizer @Inject constructor() {
                 ?: RemoteModelManager.getInstance()
                     .download(model, DownloadConditions.Builder().build())
                     .also { download = it }
-            // ML Kit's download can wait indefinitely (e.g. offline), so bound it like iOS does.
+            // ML Kit's download can wait indefinitely (e.g. offline), so bound it.
             try {
                 withTimeout(timeMillis = DOWNLOAD_TIMEOUT_MS) { task.await() }
             } catch (error: TimeoutCancellationException) {

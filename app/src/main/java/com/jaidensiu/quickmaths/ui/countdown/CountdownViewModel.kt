@@ -1,7 +1,7 @@
 package com.jaidensiu.quickmaths.ui.countdown
 
 import androidx.lifecycle.ViewModel
-import com.jaidensiu.quickmaths.data.SoundManager
+import com.jaidensiu.quickmaths.data.audio.SoundManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

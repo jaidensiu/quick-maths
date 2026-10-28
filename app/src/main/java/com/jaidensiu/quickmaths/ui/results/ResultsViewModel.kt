@@ -2,7 +2,7 @@ package com.jaidensiu.quickmaths.ui.results
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jaidensiu.quickmaths.data.BestTimeRepository
+import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

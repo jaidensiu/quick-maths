@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.audio
 
 import android.content.Context
 import android.media.AudioManager
@@ -29,7 +29,7 @@ class SoundManager @Inject constructor(
     private val nativeSfx: NativeSfxEngine,
     private val sfxDecoder: SfxPcmDecoder,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(context = SupervisorJob() + Dispatchers.Default)
 
     @Volatile
     private var isNativeSfxReady = false

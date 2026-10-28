@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.device
 
 import android.content.Context
 import android.net.ConnectivityManager

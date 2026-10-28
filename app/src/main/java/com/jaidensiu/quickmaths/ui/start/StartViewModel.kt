@@ -3,10 +3,10 @@ package com.jaidensiu.quickmaths.ui.start
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jaidensiu.quickmaths.data.BestTimeRepository
-import com.jaidensiu.quickmaths.data.GearMonitor
-import com.jaidensiu.quickmaths.data.NetworkMonitor
-import com.jaidensiu.quickmaths.data.NumberRecognizer
+import com.jaidensiu.quickmaths.data.device.GearMonitor
+import com.jaidensiu.quickmaths.data.device.NetworkMonitor
+import com.jaidensiu.quickmaths.data.handwriting.NumberRecognizer
+import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job

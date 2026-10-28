@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.audio
 
 import android.content.Context
 import android.media.AudioFormat

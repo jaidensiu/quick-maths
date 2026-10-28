@@ -1,8 +1,8 @@
 package com.jaidensiu.quickmaths
 
 import androidx.lifecycle.ViewModel
-import com.jaidensiu.quickmaths.data.SoundManager
-import com.jaidensiu.quickmaths.data.ThemeRepository
+import com.jaidensiu.quickmaths.data.audio.SoundManager
+import com.jaidensiu.quickmaths.data.prefs.ThemeRepository
 import com.jaidensiu.quickmaths.domain.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow

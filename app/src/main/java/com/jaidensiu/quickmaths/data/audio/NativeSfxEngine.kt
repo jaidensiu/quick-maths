@@ -1,4 +1,4 @@
-package com.jaidensiu.quickmaths.data
+package com.jaidensiu.quickmaths.data.audio
 
 import android.util.Log
 import javax.inject.Inject
@@ -9,10 +9,7 @@ class NativeSfxEngine @Inject constructor() {
     val isAvailable: Boolean get() = isLibraryLoaded
 
     fun init(defaultSampleRate: Int, defaultFramesPerBurst: Int): Boolean {
-        if (!isLibraryLoaded) {
-            return false
-        }
-        return try {
+        return isLibraryLoaded && try {
             nativeInit(defaultSampleRate, defaultFramesPerBurst)
         } catch (error: UnsatisfiedLinkError) {
             Log.w(TAG, "Native SFX symbols failed to resolve; SFX disabled", error)

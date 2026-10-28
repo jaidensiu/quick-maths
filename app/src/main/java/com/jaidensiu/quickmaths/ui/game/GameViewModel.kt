@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jaidensiu.quickmaths.data.BestTimeRepository
-import com.jaidensiu.quickmaths.data.GearMonitor
-import com.jaidensiu.quickmaths.data.NumberRecognizer
-import com.jaidensiu.quickmaths.data.SoundManager
+import com.jaidensiu.quickmaths.data.audio.SoundManager
+import com.jaidensiu.quickmaths.data.device.GearMonitor
+import com.jaidensiu.quickmaths.data.handwriting.NumberRecognizer
+import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import com.jaidensiu.quickmaths.domain.MathQuestion
 import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
 import dagger.hilt.android.lifecycle.HiltViewModel
