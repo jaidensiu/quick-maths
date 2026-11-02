@@ -11,3 +11,4 @@ local.properties
 keystore.properties
 *.jks
 gradle/gradle-daemon-jvm.properties
+*.trace
