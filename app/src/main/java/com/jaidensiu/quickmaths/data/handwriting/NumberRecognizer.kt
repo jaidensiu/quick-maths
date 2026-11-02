@@ -1,5 +1,6 @@
 package com.jaidensiu.quickmaths.data.handwriting
 
+import androidx.tracing.traceAsync
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.RemoteModelManager
@@ -12,6 +13,7 @@ import com.google.mlkit.vision.digitalink.recognition.RecognitionContext
 import com.google.mlkit.vision.digitalink.recognition.WritingArea
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.TimeoutCancellationException
@@ -31,6 +33,9 @@ class NumberRecognizer @Inject constructor() {
     private val prepareMutex = Mutex()
     private var isPrepared = false
 
+    /** Async trace cookie: a cancelled recognition can still be finishing when the next starts. */
+    private val recognizeCookie = AtomicInteger()
+
     /** Outlives a timed-out prepare(), so a retry waits on it instead of starting over. */
     private var download: Task<Void>? = null
 
@@ -39,25 +44,27 @@ class NumberRecognizer @Inject constructor() {
     }
 
     suspend fun prepare() {
-        prepareMutex.withLock {
-            if (isPrepared) {
-                return
+        traceAsync(methodName = "NumberRecognizer.prepare", cookie = 0) {
+            prepareMutex.withLock {
+                if (isPrepared) {
+                    return@withLock
+                }
+                val task = download?.takeUnless { it.isComplete && !it.isSuccessful }
+                    ?: RemoteModelManager.getInstance()
+                        .download(model, DownloadConditions.Builder().build())
+                        .also { download = it }
+                // ML Kit's download can wait indefinitely (e.g. offline), so bound it.
+                try {
+                    withTimeout(timeMillis = DOWNLOAD_TIMEOUT_MS) { task.await() }
+                } catch (error: TimeoutCancellationException) {
+                    // Rethrown as a plain exception: callers treat CancellationException as a cancel.
+                    throw TimeoutException(
+                        "Model download didn't finish within ${DOWNLOAD_TIMEOUT_MS}ms",
+                    )
+                }
+                warmUp()
+                isPrepared = true
             }
-            val task = download?.takeUnless { it.isComplete && !it.isSuccessful }
-                ?: RemoteModelManager.getInstance()
-                    .download(model, DownloadConditions.Builder().build())
-                    .also { download = it }
-            // ML Kit's download can wait indefinitely (e.g. offline), so bound it.
-            try {
-                withTimeout(timeMillis = DOWNLOAD_TIMEOUT_MS) { task.await() }
-            } catch (error: TimeoutCancellationException) {
-                // Rethrown as a plain exception: callers treat CancellationException as a cancel.
-                throw TimeoutException(
-                    "Model download didn't finish within ${DOWNLOAD_TIMEOUT_MS}ms",
-                )
-            }
-            warmUp()
-            isPrepared = true
         }
     }
 
@@ -66,29 +73,34 @@ class NumberRecognizer @Inject constructor() {
         writingAreaWidth: Float? = null,
         writingAreaHeight: Float? = null,
     ): String {
-        val ink = Ink.builder().apply {
-            strokes.forEach { points ->
-                addStroke(
-                    Ink.Stroke.builder().apply {
-                        points.forEach {
-                            addPoint(Ink.Point.create(it.x, it.y, it.timeMillis))
-                        }
-                    }.build(),
-                )
-            }
-        }.build()
-        val context = RecognitionContext.builder()
-            .setPreContext("")
-            .apply {
-                if (writingAreaWidth != null && writingAreaHeight != null) {
-                    setWritingArea(WritingArea(writingAreaWidth, writingAreaHeight))
+        return traceAsync(
+            methodName = "NumberRecognizer.recognize",
+            cookie = recognizeCookie.incrementAndGet(),
+        ) {
+            val ink = Ink.builder().apply {
+                strokes.forEach { points ->
+                    addStroke(
+                        Ink.Stroke.builder().apply {
+                            points.forEach {
+                                addPoint(Ink.Point.create(it.x, it.y, it.timeMillis))
+                            }
+                        }.build(),
+                    )
                 }
-            }
-            .build()
-        val candidates = recognizer.recognize(ink, context).await().candidates
-        return candidates.firstNotNullOfOrNull { candidate ->
-            candidate.text.asNumberOrNull()
-        } ?: candidates.firstOrNull()?.text?.filter { it in '0'..'9' }.orEmpty()
+            }.build()
+            val context = RecognitionContext.builder()
+                .setPreContext("")
+                .apply {
+                    if (writingAreaWidth != null && writingAreaHeight != null) {
+                        setWritingArea(WritingArea(writingAreaWidth, writingAreaHeight))
+                    }
+                }
+                .build()
+            val candidates = recognizer.recognize(ink, context).await().candidates
+            candidates.firstNotNullOfOrNull { candidate ->
+                candidate.text.asNumberOrNull()
+            } ?: candidates.firstOrNull()?.text?.filter { it in '0'..'9' }.orEmpty()
+        }
     }
 
     private fun String.asNumberOrNull(): String? {
@@ -100,11 +112,13 @@ class NumberRecognizer @Inject constructor() {
     }
 
     private suspend fun warmUp() {
-        val stroke = Ink.Stroke.builder().apply {
-            addPoint(Ink.Point.create(0f, 0f, 0L))
-            addPoint(Ink.Point.create(1f, 1f, 16L))
-        }.build()
-        recognizer.recognize(Ink.builder().addStroke(stroke).build()).await()
+        traceAsync(methodName = "NumberRecognizer.warmUp", cookie = 0) {
+            val stroke = Ink.Stroke.builder().apply {
+                addPoint(Ink.Point.create(0f, 0f, 0L))
+                addPoint(Ink.Point.create(1f, 1f, 16L))
+            }.build()
+            recognizer.recognize(Ink.builder().addStroke(stroke).build()).await()
+        }
     }
 
     private companion object {

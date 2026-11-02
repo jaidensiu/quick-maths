@@ -11,6 +11,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.tracing.trace
 import com.jaidensiu.quickmaths.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -43,7 +44,7 @@ class SoundManager @Inject constructor(
     private var pendingBackgroundStop: Job? = null
 
     init {
-        scope.launch { initNativeSfx() }
+        scope.launch { trace(label = "SoundManager.initNativeSfx") { initNativeSfx() } }
     }
 
     fun playCorrect() {
