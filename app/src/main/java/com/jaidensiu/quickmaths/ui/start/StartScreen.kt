@@ -53,7 +53,10 @@ fun StartScreen(
         strokes = strokes,
         onStrokeFinished = { strokes.add(it) },
         onClear = strokes::clear,
-        onStartGame = onStartGame,
+        onStartGame = {
+            strokes.clear()
+            onStartGame()
+        },
         onOpenSettings = onOpenSettings,
         onRetry = viewModel::onRetry,
         modifier = modifier,
