@@ -61,7 +61,8 @@ fun HandwritingCanvas(
                 .fillMaxSize()
                 .clipToBounds(),
         ) {
-            val style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            val style =
+                Stroke(width = strokeWidthPx, cap = StrokeCap.Round, join = StrokeJoin.Round)
             for (stroke in strokes) {
                 drawPath(path = stroke.path, color = strokeColor, style = style)
             }
@@ -205,7 +206,7 @@ private class InkStrokeSession : View.OnTouchListener {
                 strokeId = view.startStroke(event = event, pointerId = pointerId, brush = brush)
                 points.clear()
                 points.add(
-                    HandwritingPoint(x = event.x, y = event.y, timeMillis = event.eventTime)
+                    HandwritingPoint(x = event.x, y = event.y, timeMillis = event.eventTime),
                 )
                 lastPosition = Offset(x = event.x, y = event.y)
                 lastMoveUptimeMillis = event.eventTime
@@ -226,12 +227,12 @@ private class InkStrokeSession : View.OnTouchListener {
                             x = event.getHistoricalX(index, h),
                             y = event.getHistoricalY(index, h),
                             timeMillis = event.getHistoricalEventTime(h),
-                        )
+                        ),
                     )
                 }
                 val position = Offset(x = event.getX(index), y = event.getY(index))
                 points.add(
-                    HandwritingPoint(x = position.x, y = position.y, timeMillis = event.eventTime)
+                    HandwritingPoint(x = position.x, y = position.y, timeMillis = event.eventTime),
                 )
                 view.addToStroke(
                     event = event,
@@ -257,11 +258,12 @@ private class InkStrokeSession : View.OnTouchListener {
                         x = event.getX(index),
                         y = event.getY(index),
                         timeMillis = event.eventTime,
-                    )
+                    ),
                 )
                 // Deliberately not finishStroke(): the wet layer keeps rendering this stroke until
                 // the owner drops it, see syncWithOwnerStrokes.
-                val stroke = HandwritingStroke(path = points.toSmoothedPath(), points = points.toList())
+                val stroke =
+                    HandwritingStroke(path = points.toSmoothedPath(), points = points.toList())
                 wetStrokes[stroke] = id
                 unconfirmedStrokes.add(stroke)
                 scheduleUnconfirmedStrokeCheck(view, stroke)

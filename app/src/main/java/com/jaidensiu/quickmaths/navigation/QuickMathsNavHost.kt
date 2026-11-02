@@ -32,7 +32,7 @@ fun QuickMathsNavHost(onMusicAllowedChanged: (Boolean) -> Unit) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
     val isMusicAllowed = destination == null ||
-            !(destination.hasRoute<AppRoute.Countdown>() || destination.hasRoute<AppRoute.Game>())
+        !(destination.hasRoute<AppRoute.Countdown>() || destination.hasRoute<AppRoute.Game>())
 
     LaunchedEffect(key1 = isMusicAllowed) {
         onMusicAllowedChanged(isMusicAllowed)
@@ -51,8 +51,12 @@ fun QuickMathsNavHost(onMusicAllowedChanged: (Boolean) -> Unit) {
     ) {
         composable<AppRoute.Start> {
             StartScreen(
-                onStartGame = dropUnlessResumed { navController.navigate(route = AppRoute.Countdown) },
-                onOpenSettings = dropUnlessResumed { navController.navigate(route = AppRoute.Settings) },
+                onStartGame = dropUnlessResumed {
+                    navController.navigate(route = AppRoute.Countdown)
+                },
+                onOpenSettings = dropUnlessResumed {
+                    navController.navigate(route = AppRoute.Settings)
+                },
             )
         }
         composable<AppRoute.Settings> {
@@ -70,7 +74,9 @@ fun QuickMathsNavHost(onMusicAllowedChanged: (Boolean) -> Unit) {
         composable<AppRoute.Game> {
             GameScreen(
                 onGameFinished = { elapsedTimeMs ->
-                    navController.navigate(route = AppRoute.Results(elapsedTimeMs = elapsedTimeMs)) {
+                    navController.navigate(
+                        route = AppRoute.Results(elapsedTimeMs = elapsedTimeMs),
+                    ) {
                         popUpTo<AppRoute.Game> { inclusive = true }
                     }
                 },

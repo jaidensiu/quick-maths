@@ -11,6 +11,7 @@ import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import com.jaidensiu.quickmaths.domain.MathQuestion
 import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class GameViewModel @Inject constructor(

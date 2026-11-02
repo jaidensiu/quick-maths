@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.media3.common.AudioAttributes as Media3AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -12,16 +13,15 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.jaidensiu.quickmaths.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.time.Duration.Companion.milliseconds
-import androidx.media3.common.AudioAttributes as Media3AudioAttributes
 
 @Singleton
 class SoundManager @Inject constructor(
@@ -129,7 +129,7 @@ class SoundManager @Inject constructor(
             ?.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)?.toIntOrNull() ?: 0
         if (!nativeSfx.init(
                 defaultSampleRate = deviceSampleRate,
-                defaultFramesPerBurst = deviceFramesPerBurst
+                defaultFramesPerBurst = deviceFramesPerBurst,
             )
         ) {
             Log.w(TAG, "Oboe stream unavailable; SFX disabled")
@@ -143,7 +143,7 @@ class SoundManager @Inject constructor(
         val loadedAll = samples.all { (sampleId, resId) ->
             val pcm = sfxDecoder.decode(resId = resId)
             pcm != null &&
-                    nativeSfx.loadSample(sampleId, pcm.monoFrames, pcm.sampleRate)
+                nativeSfx.loadSample(sampleId, pcm.monoFrames, pcm.sampleRate)
         }
         if (!loadedAll) {
             Log.w(TAG, "SFX decode failed; SFX disabled")
@@ -172,29 +172,28 @@ class SoundManager @Inject constructor(
         }
     }
 
-    private fun createMusicPlayer(): ExoPlayer =
-        ExoPlayer.Builder(context).build().apply {
-            setAudioAttributes(
-                Media3AudioAttributes.Builder()
-                    .setUsage(C.USAGE_GAME)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
-                    .build(),
-                true,
-            )
-            addListener(object : Player.Listener {
-                override fun onPlayerError(error: PlaybackException) {
-                    Log.w(TAG, "Music playback error", error)
-                }
-            })
-            setMediaItem(
-                MediaItem.fromUri(
-                    "android.resource://${context.packageName}/${R.raw.music_game}".toUri()
-                )
-            )
-            repeatMode = Player.REPEAT_MODE_ONE
-            volume = MUSIC_VOLUME
-            prepare()
-        }
+    private fun createMusicPlayer(): ExoPlayer = ExoPlayer.Builder(context).build().apply {
+        setAudioAttributes(
+            Media3AudioAttributes.Builder()
+                .setUsage(C.USAGE_GAME)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                .build(),
+            true,
+        )
+        addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                Log.w(TAG, "Music playback error", error)
+            }
+        })
+        setMediaItem(
+            MediaItem.fromUri(
+                "android.resource://${context.packageName}/${R.raw.music_game}".toUri(),
+            ),
+        )
+        repeatMode = Player.REPEAT_MODE_ONE
+        volume = MUSIC_VOLUME
+        prepare()
+    }
 
     private companion object {
         const val TAG = "SoundManager"

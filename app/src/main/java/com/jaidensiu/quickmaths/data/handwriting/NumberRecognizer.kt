@@ -11,14 +11,14 @@ import com.google.mlkit.vision.digitalink.recognition.Ink
 import com.google.mlkit.vision.digitalink.recognition.RecognitionContext
 import com.google.mlkit.vision.digitalink.recognition.WritingArea
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 
 @Singleton
 class NumberRecognizer @Inject constructor() {
@@ -30,6 +30,7 @@ class NumberRecognizer @Inject constructor() {
     )
     private val prepareMutex = Mutex()
     private var isPrepared = false
+
     /** Outlives a timed-out prepare(), so a retry waits on it instead of starting over. */
     private var download: Task<Void>? = null
 
@@ -51,7 +52,9 @@ class NumberRecognizer @Inject constructor() {
                 withTimeout(timeMillis = DOWNLOAD_TIMEOUT_MS) { task.await() }
             } catch (error: TimeoutCancellationException) {
                 // Rethrown as a plain exception: callers treat CancellationException as a cancel.
-                throw TimeoutException("Model download didn't finish within ${DOWNLOAD_TIMEOUT_MS}ms")
+                throw TimeoutException(
+                    "Model download didn't finish within ${DOWNLOAD_TIMEOUT_MS}ms",
+                )
             }
             warmUp()
             isPrepared = true
@@ -70,7 +73,7 @@ class NumberRecognizer @Inject constructor() {
                         points.forEach {
                             addPoint(Ink.Point.create(it.x, it.y, it.timeMillis))
                         }
-                    }.build()
+                    }.build(),
                 )
             }
         }.build()

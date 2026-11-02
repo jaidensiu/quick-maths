@@ -26,10 +26,10 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaidensiu.quickmaths.R
-import androidx.compose.ui.tooling.preview.Preview
 import com.jaidensiu.quickmaths.domain.HandwritingPoint
 import com.jaidensiu.quickmaths.domain.MathQuestion
 import com.jaidensiu.quickmaths.domain.Operation
@@ -83,7 +83,10 @@ private fun sampleAnswerStrokes(x: Float, y: Float): List<HandwritingStroke> = l
                 timeMillis = 0L,
             )
         }
-    } + corners.last().let { HandwritingPoint(x = x + it.first, y = y + it.second, timeMillis = 0L) }
+    } +
+        corners.last().let {
+            HandwritingPoint(x = x + it.first, y = y + it.second, timeMillis = 0L)
+        }
     HandwritingStroke(path = points.toSmoothedPath(), points = points)
 }
 

@@ -8,6 +8,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.jaidensiu.quickmaths.domain.ThemePreference
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -19,16 +22,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
 @Singleton
-class ThemeRepository @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
+class ThemeRepository @Inject constructor(@param:ApplicationContext private val context: Context) {
     private val scope = CoroutineScope(context = SupervisorJob() + Dispatchers.IO)
 
     private val themeFlow: Flow<ThemePreference> = context.settingsDataStore.data

@@ -2,11 +2,7 @@ package com.jaidensiu.quickmaths.domain
 
 import kotlin.random.Random
 
-data class MathQuestion(
-    val left: Int,
-    val right: Int,
-    val operation: Operation,
-) {
+data class MathQuestion(val left: Int, val right: Int, val operation: Operation) {
     val answer = when (operation) {
         Operation.ADDITION -> left + right
         Operation.SUBTRACTION -> left - right

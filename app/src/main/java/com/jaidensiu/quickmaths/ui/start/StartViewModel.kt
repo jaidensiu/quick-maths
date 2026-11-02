@@ -7,6 +7,7 @@ import com.jaidensiu.quickmaths.data.device.NetworkMonitor
 import com.jaidensiu.quickmaths.data.handwriting.NumberRecognizer
 import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
@@ -37,10 +37,11 @@ class StartViewModel @Inject constructor(
             networkMonitor.isOnline.collect { online ->
                 when {
                     online && _state.value.modelStatus == ModelStatus.OFFLINE -> prepareModel()
+
                     // ML Kit's download task doesn't fail when the network drops;
                     // it silently waits, so surface the offline state ourselves.
                     !online && _state.value.modelStatus == ModelStatus.LOADING &&
-                            !recognizer.isModelDownloaded() ->
+                        !recognizer.isModelDownloaded() ->
                         _state.update { it.copy(modelStatus = ModelStatus.OFFLINE) }
                 }
             }

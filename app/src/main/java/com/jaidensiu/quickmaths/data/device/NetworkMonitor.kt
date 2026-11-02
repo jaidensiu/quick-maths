@@ -6,17 +6,15 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
-class NetworkMonitor @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
+class NetworkMonitor @Inject constructor(@param:ApplicationContext private val context: Context) {
     private val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
     val isOnline = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {

@@ -5,8 +5,8 @@ import com.jaidensiu.quickmaths.data.audio.SoundManager
 import com.jaidensiu.quickmaths.data.prefs.ThemeRepository
 import com.jaidensiu.quickmaths.domain.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class MainViewModel @Inject constructor(

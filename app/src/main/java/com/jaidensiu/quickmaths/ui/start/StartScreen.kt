@@ -145,7 +145,7 @@ fun StartContent(
                             ModelStatus.OFFLINE -> "No connection"
                             ModelStatus.READY -> "Start game"
                             ModelStatus.ERROR -> "Model loading error"
-                        }
+                        },
                     )
                 }
                 when (state.modelStatus) {

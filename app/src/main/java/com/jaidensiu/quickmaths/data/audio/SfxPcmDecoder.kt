@@ -13,9 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SfxPcmDecoder @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
+class SfxPcmDecoder @Inject constructor(@param:ApplicationContext private val context: Context) {
     class DecodedPcm(val monoFrames: FloatArray, val sampleRate: Int)
 
     fun decode(resId: Int): DecodedPcm? {
@@ -82,7 +80,11 @@ class SfxPcmDecoder @Inject constructor(
                     val size = extractor.readSampleData(inputBuffer, 0)
                     if (size < 0) {
                         codec.queueInputBuffer(
-                            inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                            inputIndex,
+                            0,
+                            0,
+                            0,
+                            MediaCodec.BUFFER_FLAG_END_OF_STREAM,
                         )
                         inputDone = true
                     } else {
@@ -105,7 +107,7 @@ class SfxPcmDecoder @Inject constructor(
                                 buffer = outputBuffer,
                                 channelCount = channelCount,
                                 pcmEncoding = pcmEncoding,
-                            )
+                            ),
                         )
                     }
                     codec.releaseOutputBuffer(outputIndex, false)
@@ -138,11 +140,7 @@ class SfxPcmDecoder @Inject constructor(
         return DecodedPcm(monoFrames = monoFrames, sampleRate = sampleRate)
     }
 
-    private fun toMonoFloats(
-        buffer: ByteBuffer,
-        channelCount: Int,
-        pcmEncoding: Int,
-    ): FloatArray {
+    private fun toMonoFloats(buffer: ByteBuffer, channelCount: Int, pcmEncoding: Int): FloatArray {
         val channels = channelCount.coerceAtLeast(minimumValue = 1)
         return when (pcmEncoding) {
             AudioFormat.ENCODING_PCM_FLOAT -> {

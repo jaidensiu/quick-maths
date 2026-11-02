@@ -1,0 +1,7 @@
+#!/bin/sh
+# Blocks commits with unformatted Kotlin. Fix: ./gradlew ktlintFormat. Bypass: git commit --no-verify.
+git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.kts?$' || exit 0
+./gradlew ktlintCheck -q || {
+    echo "pre-commit: Kotlin formatting failed. Run ./gradlew ktlintFormat, re-stage, and commit again." >&2
+    exit 1
+}
