@@ -29,7 +29,6 @@ android {
         targetSdk = 37
         versionCode = 2
         versionName = "1.1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 arguments += "-DANDROID_STL=c++_shared"
@@ -110,13 +109,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.androidx.ink.authoring)
     implementation(libs.androidx.ink.brush)
-    implementation(libs.androidx.ink.strokes)
     implementation(libs.androidx.input.motionprediction)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.navigation.compose)
@@ -127,11 +124,5 @@ dependencies {
     implementation(libs.oboe)
     ksp(libs.hilt.compiler)
     baselineProfile(project(":baselineprofile"))
-    testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
