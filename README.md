@@ -9,7 +9,6 @@ Icons from [Flaticon by Freepik](https://www.flaticon.com/)
   - Extract `GearMonitor` interface into `:core:game`
   - Move `useLibrary("android.car")` into `:car`
 - Regenerate baseline profiles
-- Organize submodules flavours (automotive, debug, mobile, mobileRelease, etc.)
-- Bump dep versions
+- Organize submodules flavors (automotive, debug, mobile, mobileRelease, etc.)
 - Add analytics
 - Add pre-commit hook for fmt/lint
