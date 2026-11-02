@@ -15,7 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -124,7 +124,7 @@ fun GameContent(
             }
 
             else -> {
-                val isExpandedWidth = currentWindowAdaptiveInfo()
+                val isExpandedWidth = currentWindowAdaptiveInfoV2()
                     .windowSizeClass
                     .isWidthAtLeastBreakpoint(
                         widthDpBreakpoint = WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND,
