@@ -4,7 +4,6 @@ package com.jaidensiu.quickmaths.ui.start
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,8 +22,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaidensiu.quickmaths.R
-import com.jaidensiu.quickmaths.ui.components.HandwritingCanvas
-import com.jaidensiu.quickmaths.ui.components.HandwritingStroke
 import com.jaidensiu.quickmaths.ui.shared.formatElapsedTime
 
 @Composable
@@ -46,17 +41,10 @@ fun StartScreen(
     viewModel: StartViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val strokes = remember { mutableStateListOf<HandwritingStroke>() }
 
     StartContent(
         state = state,
-        strokes = strokes,
-        onStrokeFinished = { strokes.add(it) },
-        onClear = strokes::clear,
-        onStartGame = {
-            strokes.clear()
-            onStartGame()
-        },
+        onStartGame = onStartGame,
         onOpenSettings = onOpenSettings,
         onRetry = viewModel::onRetry,
         modifier = modifier,
@@ -66,9 +54,6 @@ fun StartScreen(
 @Composable
 fun StartContent(
     state: StartState,
-    strokes: List<HandwritingStroke>,
-    onStrokeFinished: (HandwritingStroke) -> Unit,
-    onClear: () -> Unit,
     onStartGame: () -> Unit,
     onOpenSettings: () -> Unit,
     onRetry: () -> Unit,
@@ -88,91 +73,71 @@ fun StartContent(
                         )
                     }
                 },
-                actions = {
-                    TextButton(
-                        onClick = onClear,
-                        enabled = strokes.isNotEmpty(),
-                    ) {
-                        Text(
-                            text = "Clear",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    }
-                },
             )
         },
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            HandwritingCanvas(
-                strokes = strokes,
-                onStrokeFinished = onStrokeFinished,
-                modifier = Modifier.fillMaxSize(),
+            Image(
+                painter = painterResource(id = R.drawable.sad_man_playing_qm),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
+                modifier = Modifier
+                    .width(width = 200.dp)
+                    .padding(bottom = 16.dp),
             )
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.sad_man_playing_qm),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
-                    modifier = Modifier
-                        .width(width = 200.dp)
-                        .padding(bottom = 16.dp),
-                )
+            Text(
+                text = "Quick Maths",
+                style = MaterialTheme.typography.displayMedium,
+            )
+            state.bestTimeMs?.let { bestTimeMs ->
                 Text(
-                    text = "Quick Maths",
-                    style = MaterialTheme.typography.displayMedium,
-                )
-                state.bestTimeMs?.let { bestTimeMs ->
-                    Text(
-                        text = "Best time: ${bestTimeMs.formatElapsedTime()}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 16.dp),
-                    )
-                }
-                Button(
-                    onClick = onStartGame,
-                    enabled = state.canStart,
+                    text = "Best time: ${bestTimeMs.formatElapsedTime()}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 16.dp),
-                ) {
+                )
+            }
+            Button(
+                onClick = onStartGame,
+                enabled = state.canStart,
+                modifier = Modifier.padding(top = 16.dp),
+            ) {
+                Text(
+                    text = when (state.modelStatus) {
+                        ModelStatus.LOADING -> "Loading model..."
+                        ModelStatus.OFFLINE -> "No connection"
+                        ModelStatus.READY -> "Start game"
+                        ModelStatus.ERROR -> "Model loading error"
+                    },
+                )
+            }
+            when (state.modelStatus) {
+                ModelStatus.OFFLINE -> Text(
+                    text = "Connect to the internet to download the handwriting model",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 16.dp),
+                )
+
+                ModelStatus.ERROR -> {
                     Text(
-                        text = when (state.modelStatus) {
-                            ModelStatus.LOADING -> "Loading model..."
-                            ModelStatus.OFFLINE -> "No connection"
-                            ModelStatus.READY -> "Start game"
-                            ModelStatus.ERROR -> "Model loading error"
-                        },
-                    )
-                }
-                when (state.modelStatus) {
-                    ModelStatus.OFFLINE -> Text(
-                        text = "Connect to the internet to download the handwriting model",
+                        text = "Couldn't download the handwriting model",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(top = 16.dp),
                     )
-
-                    ModelStatus.ERROR -> {
-                        Text(
-                            text = "Couldn't download the handwriting model",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 16.dp),
-                        )
-                        TextButton(onClick = onRetry) {
-                            Text(text = "Retry")
-                        }
+                    TextButton(onClick = onRetry) {
+                        Text(text = "Retry")
                     }
-
-                    else -> Unit
                 }
+
+                else -> Unit
             }
         }
     }

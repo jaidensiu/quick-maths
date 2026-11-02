@@ -98,9 +98,6 @@ private fun PreviewStart() {
                 modelStatus = ModelStatus.READY,
                 bestTimeMs = SAMPLE_TIME_MS,
             ),
-            strokes = emptyList(),
-            onStrokeFinished = {},
-            onClear = {},
             onStartGame = {},
             onOpenSettings = {},
             onRetry = {},
@@ -225,9 +222,9 @@ private fun FeatureGraphicPreview() {
                             .size(width = 80.dp, height = 72.dp),
                     ) {
                         scale(scale = 0.16f, pivot = Offset.Zero) {
-                            for (stroke in strokes) {
+                            for ((path) in strokes) {
                                 drawPath(
-                                    path = stroke.path,
+                                    path = path,
                                     color = ink,
                                     style = Stroke(
                                         width = 28f,
