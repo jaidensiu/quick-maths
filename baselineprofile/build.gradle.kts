@@ -18,14 +18,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // Only the mobile flavor is profiled for now; add an "automotive" flavor here to profile AAOS.
-    flavorDimensions += "device"
-    productFlavors {
-        create("mobile") {
-            dimension = "device"
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

@@ -3,7 +3,6 @@ package com.jaidensiu.quickmaths.ui.start
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jaidensiu.quickmaths.data.device.GearMonitor
 import com.jaidensiu.quickmaths.data.device.NetworkMonitor
 import com.jaidensiu.quickmaths.data.handwriting.NumberRecognizer
 import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
@@ -22,7 +21,6 @@ class StartViewModel @Inject constructor(
     private val recognizer: NumberRecognizer,
     private val bestTimeRepository: BestTimeRepository,
     private val networkMonitor: NetworkMonitor,
-    gearMonitor: GearMonitor,
 ) : ViewModel() {
     private val _state = MutableStateFlow(value = StartState())
     val state: StateFlow<StartState> = _state.asStateFlow()
@@ -33,13 +31,6 @@ class StartViewModel @Inject constructor(
         viewModelScope.launch {
             bestTimeRepository.bestTimeMs.collect { bestTimeMs ->
                 _state.update { it.copy(bestTimeMs = bestTimeMs) }
-            }
-        }
-        // Injecting the monitor here also makes the car service connect while the user is still
-        // on the start screen, so the gear is known before the first game begins.
-        viewModelScope.launch {
-            gearMonitor.isParked.collect { parked ->
-                _state.update { it.copy(isParked = parked) }
             }
         }
         viewModelScope.launch {

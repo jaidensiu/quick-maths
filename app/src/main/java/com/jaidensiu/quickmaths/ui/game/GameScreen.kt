@@ -110,17 +110,8 @@ fun GameContent(
                         text = "Paused",
                         style = MaterialTheme.typography.displayMedium,
                     )
-                    if (!state.canResume) {
-                        Text(
-                            text = "Park the vehicle to resume",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 16.dp),
-                        )
-                    }
                     Button(
                         onClick = onResume,
-                        enabled = state.canResume,
                         modifier = Modifier.padding(top = 16.dp),
                     ) {
                         Text(text = "Resume")

@@ -9,9 +9,9 @@ import org.junit.runner.RunWith
 /**
  * Generates the app's baseline + startup profiles for cold start. Run on a device or emulator with:
  *
- * `./gradlew :app:generateMobileReleaseBaselineProfile`
+ * `./gradlew :app:generateReleaseBaselineProfile`
  *
- * The output lands in `app/src/mobileRelease/generated/baselineProfiles/` and must be committed.
+ * The output lands in `app/src/release/generated/baselineProfiles/` and must be committed.
  */
 @RunWith(AndroidJUnit4::class)
 class BaselineProfileGenerator {

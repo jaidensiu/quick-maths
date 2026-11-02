@@ -46,9 +46,8 @@ import com.jaidensiu.quickmaths.ui.theme.QuickMathsTheme
 import kotlin.math.cos
 import kotlin.math.sin
 
-// Google Play Store screenshot sizes: 9:16 phone, 16:9 landscape for Android Automotive OS.
+// Google Play Store screenshot sizes: 9:16 phone.
 private const val PHONE = "spec:width=1080px,height=1920px,dpi=420"
-private const val CAR = "spec:width=1920px,height=1080px,dpi=160"
 private const val FEATURE_GRAPHIC = "spec:width=1024px,height=500px,dpi=160"
 
 @Preview(name = "Phone light", device = PHONE, showBackground = true)
@@ -59,15 +58,6 @@ private const val FEATURE_GRAPHIC = "spec:width=1024px,height=500px,dpi=160"
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 annotation class PhonePreviews
-
-@Preview(name = "Car light", device = CAR, showBackground = true)
-@Preview(
-    name = "Car dark",
-    device = CAR,
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-annotation class CarPreviews
 
 private val sampleQuestion = MathQuestion(left = 8, right = 8, operation = Operation.MULTIPLICATION)
 
@@ -104,7 +94,6 @@ private fun PreviewStart() {
             state = StartState(
                 modelStatus = ModelStatus.READY,
                 bestTimeMs = SAMPLE_TIME_MS,
-                isParked = true,
             ),
             strokes = emptyList(),
             onStrokeFinished = {},
@@ -163,18 +152,6 @@ private fun PhoneGamePreview() = PreviewGame(strokes = sampleAnswerStrokes(x = 2
 @PhonePreviews
 @Composable
 private fun PhoneResultsPreview() = PreviewResults()
-
-@CarPreviews
-@Composable
-private fun CarStartPreview() = PreviewStart()
-
-@CarPreviews
-@Composable
-private fun CarGamePreview() = PreviewGame(strokes = sampleAnswerStrokes(x = 330f, y = 260f))
-
-@CarPreviews
-@Composable
-private fun CarResultsPreview() = PreviewResults()
 
 /** Google Play Store feature graphic: 1024x500, no transparency. */
 @Preview(name = "Feature graphic light", device = FEATURE_GRAPHIC, showBackground = true)

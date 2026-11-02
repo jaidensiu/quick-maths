@@ -6,7 +6,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaidensiu.quickmaths.data.audio.SoundManager
-import com.jaidensiu.quickmaths.data.device.GearMonitor
 import com.jaidensiu.quickmaths.data.handwriting.NumberRecognizer
 import com.jaidensiu.quickmaths.data.prefs.BestTimeRepository
 import com.jaidensiu.quickmaths.domain.MathQuestion
@@ -27,7 +26,6 @@ class GameViewModel @Inject constructor(
     private val recognizer: NumberRecognizer,
     private val bestTimeRepository: BestTimeRepository,
     private val soundManager: SoundManager,
-    gearMonitor: GearMonitor,
 ) : ViewModel() {
     private val _state = MutableStateFlow(value = GameState(question = MathQuestion.random()))
     val state: StateFlow<GameState> = _state.asStateFlow()
@@ -47,17 +45,6 @@ class GameViewModel @Inject constructor(
                 throw error
             } catch (error: Exception) {
                 Log.w(TAG, "Recognizer preparation failed; recognition may be unavailable", error)
-            }
-        }
-
-        viewModelScope.launch {
-            gearMonitor.isParked.collect { parked ->
-                // Fail closed: an unknown gear state (null) blocks play just like driving does.
-                val canResume = parked == true
-                _state.update { it.copy(canResume = canResume) }
-                if (!canResume) {
-                    onPause()
-                }
             }
         }
     }
@@ -136,7 +123,7 @@ class GameViewModel @Inject constructor(
 
     fun onResume() {
         val current = _state.value
-        if (!current.isPaused || !current.canResume) {
+        if (!current.isPaused) {
             return
         }
         totalPausedMs += SystemClock.elapsedRealtime() - pauseStartedAtMs

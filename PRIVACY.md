@@ -1,7 +1,7 @@
 # Privacy Policy for Quick Maths
 
 **Quick Maths** ("the App") is committed to respecting your privacy. This Privacy Policy explains
-how data is handled when you use the App on mobile devices or Android Automotive OS.
+how data is handled when you use the App.
 
 ---
 
