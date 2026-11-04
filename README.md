@@ -1,6 +1,6 @@
 # Quick Maths
 
-Release on the Google Play Store is coming soon... But feel free to join my closed testing group [here]([url](https://groups.google.com/g/quick-maths-closed-testers)) and test it out!
+Release on the Google Play Store is coming soon... But feel free to join my closed testing group [here](https://groups.google.com/g/quick-maths-closed-testers) and test it out!
 
 ## TODO
 
